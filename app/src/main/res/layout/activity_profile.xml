@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/profile_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- תמונת פרופיל -->
+    <ImageView
+        android:id="@+id/profile_imageProfile"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:src="@android:color/darker_gray"
+        app:layout_constraintTop_toBottomOf="@id/profile_toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- שם משתמש -->
+    <TextView
+        android:id="@+id/profile_tvUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="שם משתמש"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/profile_imageProfile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- כפתורי רמות -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/levels_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/profile_tvUserName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/profile_btnEasy"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="קלה"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/profile_btnMedium"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_percent="0.33"/>
+
+        <Button
+            android:id="@+id/profile_btnMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="בינוני"
+            app:layout_constraintStart_toEndOf="@id/profile_btnEasy"
+            app:layout_constraintEnd_toStartOf="@id/profile_btnHard"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_percent="0.33"/>
+
+        <Button
+            android:id="@+id/profile_btnHard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="קשה"
+            app:layout_constraintStart_toEndOf="@id/profile_btnMedium"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_percent="0.33"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- סטטיסטיקות המשחק -->
+    <LinearLayout
+        android:id="@+id/stats_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutDirection="rtl"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/levels_container"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/profile_tvGamePlayed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="כמות משחקים: 0" />
+
+        <TextView
+            android:id="@+id/profile_tvGameWins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="ניצחונות: 0" />
+
+        <TextView
+            android:id="@+id/profile_tvGameLosses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="הפסדים: 0" />
+
+        <TextView
+            android:id="@+id/profile_tvGameBestTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="זמן טוב ביותר: -" />
+
+        <TextView
+            android:id="@+id/profile_tvGameBestWinsStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="רצף ניצחונות טוב ביותר: 0" />
+
+        <TextView
+            android:id="@+id/profile_tvGamePerfectWins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:text="ניצחונות מושלמים: 0" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

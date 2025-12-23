@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/game_tvTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
+
+
+    <GridLayout
+        android:id="@+id/game_gridLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:columnCount="9"
+        android:rowCount="9"
+        app:layout_constraintBottom_toTopOf="@id/game_btnAI"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/game_tvTimer"
+        app:layout_constraintVertical_bias="0.088" />
+
+    <Button
+        android:id="@+id/game_btnAI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:text="רמז"
+        app:layout_constraintBottom_toTopOf="@id/game_btnReturnHome"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/game_btnReturnHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="52dp"
+        android:text="חזרה"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/numbers_container"
+        android:layout_width="274dp"
+        android:layout_height="151dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/game_btnAI"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            android:weightSum="5">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn1"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="1" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn2"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="2" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn3"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="3" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn4"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="4" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn5"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="5" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn6"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="6" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn7"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="7" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn8"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="8" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/game_btn9"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="9" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
