@@ -34,8 +34,8 @@ public class GameActivity extends AppCompatActivity {
         gridLayout = findViewById(R.id.game_gridLayout);
         timerTextView = findViewById(R.id.game_tvTimer);
 
-        board = new GameManager();
         String difficulty = getIntent().getStringExtra("difficulty_level");
+        board = new GameManager(difficulty);
 
         game_btnReturnHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,8 +143,8 @@ public class GameActivity extends AppCompatActivity {
     private Drawable createCellBackground(int row, int col, boolean isSelected) {
         float density = getResources().getDisplayMetrics().density;
 
-        int thinBorder = (int) (1 * density);  // 1dp - קו דק
-        int thickBorder = (int) (3 * density); // 3dp - קו עבה
+        int thinBorder = (int) (1 * density);
+        int thickBorder = (int) (3 * density);
 
         int leftWidth   = (col == 8) ? thickBorder : thinBorder;
         int topWidth    = (row == 0) ? thickBorder : thinBorder;

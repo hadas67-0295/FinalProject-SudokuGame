@@ -37,15 +37,12 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
-
-        // Apply window insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // findViewById לכל הכפתורים והטקסטים
         profile_imageProfile = findViewById(R.id.profile_imageProfile);
         profile_btnEasy = findViewById(R.id.profile_btnEasy);
         profile_btnMedium = findViewById(R.id.profile_btnMedium);
@@ -59,7 +56,6 @@ public class ProfileActivity extends AppCompatActivity {
         profile_tvGamePerfectWins = findViewById(R.id.profile_tvGamePerfectWins);
         profile_toolbar = findViewById(R.id.profile_toolbar);
 
-        // שמירת הצבעים המקוריים של הכפתורים
         easyOriginalColor = ViewCompat.getBackgroundTintList(profile_btnEasy) != null ?
                 ViewCompat.getBackgroundTintList(profile_btnEasy).getDefaultColor() :
                 ContextCompat.getColor(this, R.color.profile_button_default);
@@ -79,7 +75,6 @@ public class ProfileActivity extends AppCompatActivity {
         String username = prefs.getString("username", "אורח");
         profile_tvUserName.setText("שלום, " + username);
 
-        // הקש על כפתורים
         profile_btnEasy.setOnClickListener(v -> showStatsForLevel("easy", profile_btnEasy));
         profile_btnMedium.setOnClickListener(v -> showStatsForLevel("medium", profile_btnMedium));
         profile_btnHard.setOnClickListener(v -> showStatsForLevel("hard", profile_btnHard));
@@ -91,17 +86,14 @@ public class ProfileActivity extends AppCompatActivity {
         Button[] buttons = { profile_btnEasy, profile_btnMedium, profile_btnHard };
         for (Button btn : buttons) {
             if (btn == selectedButton) {
-                // הכפתור שנבחר → מחזירים לו את הצבע המקורי שלו
                 if (btn == profile_btnEasy) ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(easyOriginalColor));
                 if (btn == profile_btnMedium) ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(mediumOriginalColor));
                 if (btn == profile_btnHard) ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(hardOriginalColor));
             } else {
-                // שאר הכפתורים → צבע ברירת מחדל
                 ViewCompat.setBackgroundTintList(btn, ColorStateList.valueOf(defaultColor));
             }
         }
 
-        // עדכון סטטיסטיקה
         int played = prefs.getInt(level + "_played", 0);
         int wins = prefs.getInt(level + "_wins", 0);
         int losses = prefs.getInt(level + "_losses", 0);

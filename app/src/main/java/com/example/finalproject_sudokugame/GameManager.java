@@ -6,16 +6,54 @@ public class GameManager {
     private int selectedCol;
     private final int SIZE = 9;
 
-    public GameManager() {
+    private final int[][] solution = {
+            {5,3,4,6,7,8,9,1,2},
+            {6,7,2,1,9,5,3,4,8},
+            {1,9,8,3,4,2,5,6,7},
+            {8,5,9,7,6,1,4,2,3},
+            {4,2,6,8,5,3,7,9,1},
+            {7,1,3,9,2,4,8,5,6},
+            {9,6,1,5,3,7,2,8,4},
+            {2,8,7,4,1,9,6,3,5},
+            {3,4,5,2,8,6,1,7,9}
+    };
+
+    public GameManager(String difficulty) {
         board = new int[SIZE][SIZE];
         selectedRow = -1;
         selectedCol = -1;
+
+        int emptyCells;
+
+        if (difficulty.equalsIgnoreCase("easy")) {
+            emptyCells = 20; // 20 תאים ריקים
+        } else if (difficulty.equalsIgnoreCase("medium")) {
+            emptyCells = 40; // 40 תאים ריקים
+        } else {
+            emptyCells = 55; // 55 תאים ריקים
+        }
+        for (int r = 0; r < SIZE; r++) {
+            System.arraycopy(solution[r], 0, board[r], 0, SIZE);
+        }
+
+        removeCells(emptyCells);
+    }
+    private void removeCells(int count) {
+        java.util.Random rand = new java.util.Random();
+        while (count > 0) {
+            int r = rand.nextInt(SIZE);
+            int c = rand.nextInt(SIZE);
+            if (board[r][c] != 0) {
+                board[r][c] = 0;
+                count--;
+            }
+        }
     }
 
-    /**
-     Returns the currently selected row index.
-     return the selected row (0–8), or -1 if no cell selected
-     */
+        /**
+         Returns the currently selected row index.
+         return the selected row (0–8), or -1 if no cell selected
+         */
     public int getSelectedRow() {
 
         return selectedRow;
