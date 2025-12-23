@@ -2,12 +2,13 @@ package com.example.finalproject_sudokugame;
 
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -78,60 +79,30 @@ public class GameActivity extends AppCompatActivity {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 TextView cell = new TextView(this);
-                EditText cellBorder = new EditText(this);
 
                 cell.setTextSize(24);
                 cell.setGravity(Gravity.CENTER);
-                int left,top,right,bottom;
-                if(col%3==0){
-                    left =3;
-                }
-                else{
-                    left =1;
-                }
-                if(row%3==0){
-                    top =3;
-                }
-                else{
-                    top =1;
-                }
-                if(col==8||(col+1)%3==0){
-                    right =3;
-                }
-                else{
-                    right =1;
-                }
-                if(row==8||(row+1)%3==0){
-                    bottom =3;
-                }
-                else{
-                    bottom =1;
-                }
-                GradientDrawable border = new GradientDrawable();
-                border.setColor(Color.WHITE);
-                border.setStroke(1,Color.parseColor("#CCCCCC"));
-                border = createCellBorder(row, col);
 
-                if (row == board.getSelectedRow() && col == board.getSelectedCol()) {
-                    border.setColor(getResources().getColor(android.R.color.holo_blue_light));
-                } else {
-                    border.setColor(Color.WHITE);
-                }
+                boolean isSelected =
+                        row == board.getSelectedRow() &&
+                                col == board.getSelectedCol();
 
-                cell.setBackground(border);
+                Drawable background = createCellBackground(row, col, isSelected);
+                cell.setBackground(background);
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = 0;
                 params.height = 0;
                 params.rowSpec = GridLayout.spec(row, 1f);
                 params.columnSpec = GridLayout.spec(col, 1f);
-                params.setMargins(2, 2, 2, 2);
+                params.setMargins(0, 0, 0, 0);
                 cell.setLayoutParams(params);
 
                 int value = board.getCell(row, col);
                 if (value != 0) {
                     cell.setText(String.valueOf(value));
                     cell.setEnabled(false);
+                    cell.setTextColor(Color.BLACK);
                 } else {
                     cell.setText("");
                     int finalI = row;
@@ -169,24 +140,45 @@ public class GameActivity extends AppCompatActivity {
         handler.removeCallbacks(updateTimerRunnable);
     }
 
-    private GradientDrawable createCellBorder(int row, int col) {
-        GradientDrawable border = new GradientDrawable();
-        border.setColor(Color.WHITE);
+    private Drawable createCellBackground(int row, int col, boolean isSelected) {
+        float density = getResources().getDisplayMetrics().density;
 
-        // עובי הגבול תלוי במיקום התא
-        // גבול עבה (3-4dp) בקצוות בלוקים 3x3
-        // גבול דק (1dp) בין תאים רגילים
-        int strokeWidth;
-        int color = Color.BLACK;
+        int thinBorder = (int) (1 * density);  // 1dp - קו דק
+        int thickBorder = (int) (3 * density); // 3dp - קו עבה
 
-        // קביעת עובי הגבול
-        if (row % 3 == 0 || col % 3 == 0 || row == 8 || col == 8) {
-            strokeWidth = 3; // גבול עבה
-        } else {
-            strokeWidth = 1; // גבול דק
-        }
+        int leftWidth   = (col == 8) ? thickBorder : thinBorder;
+        int topWidth    = (row == 0) ? thickBorder : thinBorder;
 
-        border.setStroke(strokeWidth, color);
-        return border;
+        int rightWidth  = (col % 3 == 0) ? thickBorder : thinBorder;
+        int bottomWidth = ((row+1) % 3 == 0) ? thickBorder : thinBorder;
+
+
+        GradientDrawable leftBorder = new GradientDrawable();
+        leftBorder.setColor(Color.BLACK);
+
+        GradientDrawable topBorder = new GradientDrawable();
+        topBorder.setColor(Color.BLACK);
+
+        GradientDrawable rightBorder = new GradientDrawable();
+        rightBorder.setColor(Color.BLACK);
+
+        GradientDrawable bottomBorder = new GradientDrawable();
+        bottomBorder.setColor(Color.BLACK);
+
+        GradientDrawable center = new GradientDrawable();
+        center.setColor(isSelected
+                ? Color.parseColor("#90CAF9")
+                : Color.WHITE);
+
+        Drawable[] layers = {leftBorder, topBorder, rightBorder, bottomBorder, center};
+        LayerDrawable layerDrawable = new LayerDrawable(layers);
+
+        layerDrawable.setLayerInset(0, 0, 0, 0, 0);
+        layerDrawable.setLayerInset(1, 0, 0, 0, 0);
+        layerDrawable.setLayerInset(2, 0, 0, 0, 0);
+        layerDrawable.setLayerInset(3, 0, 0, 0, 0);
+        layerDrawable.setLayerInset(4, leftWidth, topWidth, rightWidth, bottomWidth);
+
+        return layerDrawable;
     }
 }
