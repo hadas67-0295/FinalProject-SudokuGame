@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
+import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -20,6 +21,10 @@ public class GameActivity extends AppCompatActivity {
     private GridLayout gridLayout;
     private TextView timerTextView, game_tvResponse;
     Button game_btnReturnHome;
+    private static final int MAX_STRIKES = 3;
+    private int strikes = 0;
+    private boolean isGameOver = false;
+    private TextView game_tvStrikes;
 
     Handler handler = new Handler();
     long startTime;
@@ -33,6 +38,8 @@ public class GameActivity extends AppCompatActivity {
         gridLayout = findViewById(R.id.game_gridLayout);
         timerTextView = findViewById(R.id.game_tvTimer);
         game_tvResponse = findViewById(R.id.game_tvResponse);
+        game_tvStrikes = findViewById(R.id.game_tvStrikes);
+        updateStrikesUI();
 
         String difficulty = getIntent().getStringExtra("difficulty_level");
         board = new GameManager(difficulty);
@@ -54,7 +61,12 @@ public class GameActivity extends AppCompatActivity {
             int buttonId = getResources().getIdentifier("game_btn" + num, "id", getPackageName());
             Button btn = findViewById(buttonId);
             int finalNum = num;
-            btn.setOnClickListener(v -> placeNumber(finalNum));
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    placeNumber(finalNum);
+                }
+            });
         }
     }
 
@@ -72,6 +84,7 @@ public class GameActivity extends AppCompatActivity {
     };
 
     private void drawBoard() {
+        if (isGameOver) return;
         gridLayout.removeAllViews();
         gridLayout.setColumnCount(9);
         gridLayout.setRowCount(9);
@@ -120,23 +133,30 @@ public class GameActivity extends AppCompatActivity {
                         }
                     });
                 }
-
                 gridLayout.addView(cell);
             }
         }
     }
 
     private void placeNumber(int number) {
+
+        if (isGameOver) return;
+
         if (board.tryPlaceNumber(number)) {
             drawBoard();
 
             if (board.isComplete()) {
+                isGameOver = true;
+                handler.removeCallbacks(updateTimerRunnable);
                 showMessage("כל הכבוד! פתרת את הלוח!");
             }
+
         } else {
+            addStrike();
             showMessage("מספר לא חוקי או לא נבחר תא!");
         }
     }
+
 
     @Override
     protected void onDestroy() {
@@ -196,4 +216,45 @@ public class GameActivity extends AppCompatActivity {
             }
         }, 3000);
     }
+    private void updateStrikesUI() {
+        game_tvStrikes.setText(strikes + "/" + MAX_STRIKES);
+    }
+    private void addStrike() {
+        strikes++;
+        updateStrikesUI();
+
+        if (strikes >= MAX_STRIKES) {
+            endGame();
+        }
+    }
+
+    private void endGame() {
+        isGameOver = true;
+        handler.removeCallbacks(updateTimerRunnable);
+        showEndGameDialog(false);
+    }
+
+
+    private void showEndGameDialog(boolean isWin) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        if (isWin) {
+            builder.setTitle("כל הכבוד! 🎉");
+            builder.setMessage("פתרת את הסודוקו בהצלחה!\nתחזור למסך הבית.");
+        } else {
+            builder.setTitle("המשחק הסתיים");
+            builder.setMessage("הגעת ל־3 פסילות.\nהמשחק יסתיים ותחזור למסך הבית.");
+        }
+
+        builder.setCancelable(false);
+
+        builder.setPositiveButton("אישור", (dialog, which) -> {
+            dialog.dismiss();
+            finish();
+        });
+        builder.show();
+    }
+
+
 }
