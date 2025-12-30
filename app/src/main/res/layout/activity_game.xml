@@ -165,4 +165,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/game_gridLayout" />
 
+    <TextView
+        android:id="@+id/game_tvStrikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/game_gridLayout"
+        app:layout_constraintEnd_toStartOf="@+id/game_tvTimer"
+        app:layout_constraintHorizontal_bias="0.051"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.51" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
