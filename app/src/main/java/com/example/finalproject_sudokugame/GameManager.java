@@ -1,11 +1,12 @@
 package com.example.finalproject_sudokugame;
+
 public class GameManager {
 
     private int[][] board;
     private int selectedRow;
     private int selectedCol;
     private final int SIZE = 9;
-
+    private int[][] originalBoard;
     private final int[][] solution = {
             {5,3,4,6,7,8,9,1,2},
             {6,7,2,1,9,5,3,4,8},
@@ -20,24 +21,26 @@ public class GameManager {
 
     public GameManager(String difficulty) {
         board = new int[SIZE][SIZE];
+        originalBoard = new int[SIZE][SIZE];
         selectedRow = -1;
         selectedCol = -1;
-
-        int emptyCells;
-
-        if (difficulty.equalsIgnoreCase("easy")) {
-            emptyCells = 20; // 20 תאים ריקים
-        } else if (difficulty.equalsIgnoreCase("medium")) {
-            emptyCells = 40; // 40 תאים ריקים
-        } else {
-            emptyCells = 55; // 55 תאים ריקים
-        }
         for (int r = 0; r < SIZE; r++) {
             System.arraycopy(solution[r], 0, board[r], 0, SIZE);
+            System.arraycopy(solution[r], 0, originalBoard[r], 0, SIZE);
+        }
+
+        int emptyCells;
+        if (difficulty.equalsIgnoreCase("easy")) {
+            emptyCells = 20;
+        } else if (difficulty.equalsIgnoreCase("medium")) {
+            emptyCells = 40;
+        } else {
+            emptyCells = 55;
         }
 
         removeCells(emptyCells);
     }
+
     private void removeCells(int count) {
         java.util.Random rand = new java.util.Random();
         while (count > 0) {
@@ -45,17 +48,17 @@ public class GameManager {
             int c = rand.nextInt(SIZE);
             if (board[r][c] != 0) {
                 board[r][c] = 0;
+                originalBoard[r][c] = 0;  // ✅ גם למחוק מהלוח המקורי!
                 count--;
             }
         }
     }
 
-        /**
-         Returns the currently selected row index.
-         return the selected row (0–8), or -1 if no cell selected
-         */
+    /**
+     Returns the currently selected row index.
+     return the selected row (0–8), or -1 if no cell selected
+     */
     public int getSelectedRow() {
-
         return selectedRow;
     }
 
@@ -64,7 +67,6 @@ public class GameManager {
      return the selected column (0–8), or -1 if no cell selected
      */
     public int getSelectedCol() {
-
         return selectedCol;
     }
 
@@ -75,7 +77,6 @@ public class GameManager {
      return the value in the cell (0 if empty, 1–9 if filled)
      */
     public int getCell(int row, int col) {
-
         return board[row][col];
     }
 
@@ -86,8 +87,27 @@ public class GameManager {
      parameter value the number to place (0 for empty, 1–9 for valid values)
      */
     public void setCell(int row, int col, int value) {
-
         board[row][col] = value;
+    }
+
+    public int getSolutionCell(int row, int col) {
+        return solution[row][col];
+    }
+
+    public boolean isOriginalCell(int row, int col) {
+        return originalBoard[row][col] != 0;
+    }
+
+    public int getOriginalCell(int row, int col) {
+        return originalBoard[row][col];
+    }
+
+    /**
+     * בודק אם תא מסוים מכיל מספר שהמשתמש הכניס
+     * מחזיר true אם התא לא היה מלא מההתחלה והמשתמש הכניס מספר
+     */
+    public boolean isUserCell(int row, int col) {
+        return originalBoard[row][col] == 0 && board[row][col] != 0;
     }
 
     /**
@@ -138,10 +158,9 @@ public class GameManager {
         selectedCol = col;
     }
 
-
     /**
      Attempts to place a number in the currently selected cell.
-     Validates the move using Sudoku rules before placing.
+     Only allows the correct number according to the solution.
      parameter number the number to place (1–9)
      return true if the number was successfully placed, false otherwise
      */
@@ -149,12 +168,14 @@ public class GameManager {
         if (selectedRow == -1 || selectedCol == -1) {
             return false;
         }
-        if (isValidMove(selectedRow, selectedCol, number)) {
+        // ✅ בדיקה שהמספר נכון לפי הפתרון
+        if (number == solution[selectedRow][selectedCol]) {
             setCell(selectedRow, selectedCol, number);
             return true;
         }
         return false;
     }
+
     //public boolean solve(){}
     //public void generateBoard(int clues){}
 }
