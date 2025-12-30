@@ -48,7 +48,7 @@ public class GameManager {
             int c = rand.nextInt(SIZE);
             if (board[r][c] != 0) {
                 board[r][c] = 0;
-                originalBoard[r][c] = 0;  // ✅ גם למחוק מהלוח המקורי!
+                originalBoard[r][c] = 0;
                 count--;
             }
         }
@@ -168,7 +168,6 @@ public class GameManager {
         if (selectedRow == -1 || selectedCol == -1) {
             return false;
         }
-        // ✅ בדיקה שהמספר נכון לפי הפתרון
         if (number == solution[selectedRow][selectedCol]) {
             setCell(selectedRow, selectedCol, number);
             return true;

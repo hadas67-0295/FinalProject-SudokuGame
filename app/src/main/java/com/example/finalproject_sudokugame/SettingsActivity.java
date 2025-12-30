@@ -110,20 +110,10 @@ public class SettingsActivity extends AppCompatActivity {
     private void showAccountDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("הגדרות חשבון");
-        builder.setItems(new CharSequence[]{"שנה שם משתמש", "שנה סיסמה", "התנתק"}, (dialog, which) -> {
+        builder.setItems(new CharSequence[]{"התנתק"}, (dialog, which) -> {
             SharedPreferences.Editor editor = prefs.edit();
             switch (which) {
                 case 0:
-                    editor.putString("username", "משתמש חדש");
-                    editor.apply();
-                    Toast.makeText(this, "שם המשתמש עודכן", Toast.LENGTH_SHORT).show();
-                    break;
-                case 1:
-                    editor.putString("password", "סיסמה חדשה");
-                    editor.apply();
-                    Toast.makeText(this, "הסיסמה עודכנה", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2:
                     editor.remove("username");
                     editor.remove("password");
                     editor.apply();
