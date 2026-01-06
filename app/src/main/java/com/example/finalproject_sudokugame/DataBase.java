@@ -5,10 +5,11 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {StatisticsEntity.class}, version = 1)
+@Database(entities = {StatisticsEntity.class, SavedGameEntity.class}, version = 1)
 public abstract class DataBase extends RoomDatabase {
 
     public abstract StatisticsDao statisticsDao();
+    public abstract SavedGameDao savedGameDao();
 
     private static DataBase instance;
 
