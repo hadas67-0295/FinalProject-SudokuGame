@@ -20,23 +20,29 @@ public class MusicService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        mediaPlayer.setLooping(true);
+        try {
+            int resId = getResources().getIdentifier("game_music", "raw", getPackageName());
+            if (resId != 0) {
+                mediaPlayer = MediaPlayer.create(this, resId);
+                if (mediaPlayer != null) {
+                    mediaPlayer.setLooping(true);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel();
-
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("סודוקו")
                     .setContentText("המוזיקה פועלת ברקע")
                     .setSmallIcon(android.R.drawable.ic_media_play)
                     .setOngoing(true)
                     .build();
-
             startForeground(1, notification);
         }
 
@@ -50,7 +56,6 @@ public class MusicService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
