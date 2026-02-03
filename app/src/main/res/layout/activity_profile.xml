@@ -8,8 +8,6 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-
-    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/profile_toolbar"
         android:layout_width="0dp"
@@ -19,9 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- תמונת פרופיל -->
-
-    <!-- שם משתמש -->
     <TextView
         android:id="@+id/profile_tvUserName"
         android:layout_width="wrap_content"
@@ -33,7 +28,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_toolbar" />
 
-    <!-- כפתורי רמות -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/levels_container"
         android:layout_width="match_parent"
@@ -77,7 +71,6 @@
             app:layout_constraintWidth_percent="0.33"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- סטטיסטיקות המשחק -->
     <LinearLayout
         android:id="@+id/stats_layout"
         android:layout_width="match_parent"
