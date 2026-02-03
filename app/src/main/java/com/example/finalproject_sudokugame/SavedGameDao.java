@@ -8,7 +8,6 @@ import androidx.room.Update;
 
 @Dao
 public interface SavedGameDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveGame(SavedGameEntity savedGame);
 
