@@ -2,21 +2,19 @@ package com.example.finalproject_sudokugame;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
 public interface SavedGameDao {
 
-    @Insert
-    void insertSavedGame(SavedGameEntity savedGame);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void saveGame(SavedGameEntity savedGame);
 
-    @Update
-    void updateSavedGame(SavedGameEntity savedGame);
+    @Query("SELECT * FROM saved_game WHERE username = :username LIMIT 1")
+    SavedGameEntity getSavedGameForUser(String username);
 
-    @Query("SELECT * FROM saved_game WHERE difficultyLevel = :level ORDER BY id DESC LIMIT 1")
-    SavedGameEntity getLastSavedGame(String level);
-
-    @Query("DELETE FROM saved_game WHERE id = :id")
-    void deleteSavedGame(int id);
+    @Query("DELETE FROM saved_game WHERE username = :username")
+    void deleteSavedGameForUser(String username);
 }

@@ -44,9 +44,12 @@ public class HomeActivity extends AppCompatActivity {
 
         setSupportActionBar(home_toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        SharedPreferences prefs = getSharedPreferences("sudoku_game", Context.MODE_PRIVATE);
-        boolean hasSavedGame = prefs.getBoolean("hasSavedGame", false);
-        home_btnContinueGame.setEnabled(hasSavedGame);
+        SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
+        boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
+        String username = userPrefs.getString("username", "");
+        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", Context.MODE_PRIVATE);
+        boolean hasSavedGame = gamePrefs.getBoolean("hasSavedGame_" + username, false);
+        home_btnContinueGame.setEnabled(isLoggedIn&&hasSavedGame);
 
         home_btnInstructions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,8 +69,9 @@ public class HomeActivity extends AppCompatActivity {
         home_btnContinueGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (hasSavedGame) {
+                if (isLoggedIn&&hasSavedGame) {
                     Intent intent = new Intent(HomeActivity.this, GameActivity.class);
+                    intent.putExtra("resume_game", true);
                     startActivity(intent);
                 } else {
                     Toast.makeText(HomeActivity.this, "אין משחק שמור להמשיך", Toast.LENGTH_SHORT).show();
@@ -119,5 +123,15 @@ public class HomeActivity extends AppCompatActivity {
                         "בהצלחה!");
         builder.setPositiveButton("סגור", null);
         builder.show();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
+        boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
+        String username = userPrefs.getString("username", "");
+        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", Context.MODE_PRIVATE);
+        boolean hasSavedGame = gamePrefs.getBoolean("hasSavedGame_" + username, false);
+        home_btnContinueGame.setEnabled(isLoggedIn && hasSavedGame);
     }
 }

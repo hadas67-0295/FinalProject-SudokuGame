@@ -22,14 +22,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private ImageView profile_imageProfile;
+    private TextView profile_tvGuestMode;
     private Button profile_btnEasy, profile_btnMedium, profile_btnHard;
     private TextView profile_tvUserName, profile_tvGamePlayed, profile_tvGameWins,
             profile_tvGameLosses, profile_tvGameBestTime,
             profile_tvGameBestWinsStreak, profile_tvGamePerfectWins;
     private Toolbar profile_toolbar;
 
-    private SharedPreferences prefs;
+    private SharedPreferences statsPrefs;
+    private SharedPreferences userPrefs;
     private int easyOriginalColor, mediumOriginalColor, hardOriginalColor;
 
     @Override
@@ -42,8 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        profile_imageProfile = findViewById(R.id.profile_imageProfile);
+        profile_tvGuestMode = findViewById(R.id.profile_tvGuestMode);
         profile_btnEasy = findViewById(R.id.profile_btnEasy);
         profile_btnMedium = findViewById(R.id.profile_btnMedium);
         profile_btnHard = findViewById(R.id.profile_btnHard);
@@ -71,13 +71,15 @@ public class ProfileActivity extends AppCompatActivity {
         setSupportActionBar(profile_toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        prefs = getSharedPreferences("sudoku_stats", Context.MODE_PRIVATE);
-        String username = prefs.getString("username", "אורח");
-        profile_tvUserName.setText("שלום, " + username);
+        statsPrefs = getSharedPreferences("sudoku_stats", Context.MODE_PRIVATE);
+        userPrefs = getSharedPreferences("sudoku_user", Context.MODE_PRIVATE);
+
 
         profile_btnEasy.setOnClickListener(v -> showStatsForLevel("easy", profile_btnEasy));
         profile_btnMedium.setOnClickListener(v -> showStatsForLevel("medium", profile_btnMedium));
         profile_btnHard.setOnClickListener(v -> showStatsForLevel("hard", profile_btnHard));
+
+        updateUI();
     }
 
     private void showStatsForLevel(String level, Button selectedButton) {
@@ -94,12 +96,15 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
 
-        int played = prefs.getInt(level + "_played", 0);
-        int wins = prefs.getInt(level + "_wins", 0);
-        int losses = prefs.getInt(level + "_losses", 0);
-        String bestTime = prefs.getString(level + "_bestTime", "--:--");
-        int bestStreak = prefs.getInt(level + "_bestStreak", 0);
-        int perfectWins = prefs.getInt(level + "_perfectWins", 0);
+        String username = userPrefs.getString("username", "");
+        String prefix = username.isEmpty() ? "guest_" : username + "_";
+
+        int played = statsPrefs.getInt(prefix + level + "_played", 0);
+        int wins = statsPrefs.getInt(prefix + level + "_wins", 0);
+        int losses = statsPrefs.getInt(prefix + level + "_losses", 0);
+        String bestTime = statsPrefs.getString(prefix + level + "_bestTime", "--:--");
+        int bestStreak = statsPrefs.getInt(prefix + level + "_bestStreak", 0);
+        int perfectWins = statsPrefs.getInt(prefix + level + "_perfectWins", 0);
 
         profile_tvGamePlayed.setText("משחקים: " + played);
         profile_tvGameWins.setText("ניצחונות: " + wins);
@@ -137,4 +142,40 @@ public class ProfileActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void updateUI() {
+        boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
+        String username = userPrefs.getString("username", "אורח");
+
+        if (!isLoggedIn) {
+            profile_tvUserName.setText("שלום אורח");
+            profile_tvGuestMode.setText("התחבר כדי לראות סטטיסטיקות");
+
+            profile_tvGamePlayed.setText("");
+            profile_tvGameWins.setText("");
+            profile_tvGameLosses.setText("");
+            profile_tvGameBestTime.setText("");
+            profile_tvGameBestWinsStreak.setText("");
+            profile_tvGamePerfectWins.setText("");
+
+            profile_btnEasy.setEnabled(false);
+            profile_btnMedium.setEnabled(false);
+            profile_btnHard.setEnabled(false);
+        } else {
+            profile_tvUserName.setText("שלום, " + username);
+            profile_tvGuestMode.setText("");
+
+            profile_btnEasy.setEnabled(true);
+            profile_btnMedium.setEnabled(true);
+            profile_btnHard.setEnabled(true);
+
+            showStatsForLevel("easy", profile_btnEasy);
+        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
 }

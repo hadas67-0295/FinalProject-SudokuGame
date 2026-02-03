@@ -20,16 +20,6 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- תמונת פרופיל -->
-    <ImageView
-        android:id="@+id/profile_imageProfile"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:scaleType="centerCrop"
-        android:src="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/profile_toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
 
     <!-- שם משתמש -->
     <TextView
@@ -39,10 +29,9 @@
         android:text="שם משתמש"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/profile_imageProfile"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_toolbar" />
 
     <!-- כפתורי רמות -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -143,5 +132,15 @@
             android:text="ניצחונות מושלמים: 0" />
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/profile_tvGuestMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stats_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

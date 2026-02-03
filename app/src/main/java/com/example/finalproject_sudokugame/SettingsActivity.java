@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.audiofx.Equalizer;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
@@ -178,23 +179,14 @@ public class SettingsActivity extends AppCompatActivity {
             builder.setItems(new CharSequence[]{"התנתק"}, (dialog, which) -> {
                 switch (which) {
                     case 0:
-                        // מוחקים את המשתמש מה־SharedPreferences
-                        userPrefs.edit().clear().apply();
+                        userPrefs.edit().putBoolean("is_logged_in", false).apply();
 
-                        // מוחקים את המשחק האחרון של המשתמש מה־Room
-                        if (!username.isEmpty()) {
-                            new Thread(() -> {
-                                DataBase.getInstance(this)
-                                        .savedGameDao()
-                                        .deleteSavedGameForUser(username);
-                            }).start();
-                        }
+
 
                         Toast.makeText(SettingsActivity.this,
                                 "התנתקת מהחשבון",
                                 Toast.LENGTH_SHORT).show();
 
-                        // מחזירים למסך ההתחברות
                         Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);

@@ -61,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("username", username);
                     editor.putString("password", password);
+                    editor.putBoolean("is_logged_in", true);
                     editor.apply();
 
                     Toast.makeText(LoginActivity.this, "המשתמש נרשם בהצלחה!", Toast.LENGTH_SHORT).show();
@@ -85,6 +86,9 @@ public class LoginActivity extends AppCompatActivity {
                 String savedPassword = sharedPreferences.getString("password", null);
 
                 if (username.equals(savedUsername) && password.equals(savedPassword)) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("is_logged_in", true);
+                    editor.apply();
                     Toast.makeText(LoginActivity.this, "התחברות הצליחה!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
