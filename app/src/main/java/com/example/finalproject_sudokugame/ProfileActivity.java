@@ -177,5 +177,4 @@ public class ProfileActivity extends AppCompatActivity {
         super.onResume();
         updateUI();
     }
-
 }
