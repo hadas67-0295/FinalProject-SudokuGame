@@ -61,7 +61,6 @@ public class SettingsActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         settings_toolbar = findViewById(R.id.settings_toolbar);
         settings_tvAccount = findViewById(R.id.settings_tvAccount);
         settings_btnAccount = findViewById(R.id.settings_btnAccount);
