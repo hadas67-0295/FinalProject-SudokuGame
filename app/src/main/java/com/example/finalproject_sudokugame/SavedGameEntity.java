@@ -37,7 +37,6 @@ public class SavedGameEntity {
     public void setDifficultyLevel(String difficultyLevel) {
         this.difficultyLevel = difficultyLevel;
     }
-
     public long getTimer() {
         return timer;
     }
