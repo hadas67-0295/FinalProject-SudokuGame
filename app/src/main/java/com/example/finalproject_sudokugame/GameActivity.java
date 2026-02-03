@@ -1,6 +1,7 @@
 package com.example.finalproject_sudokugame;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -58,7 +59,7 @@ public class GameActivity extends AppCompatActivity {
             loadSavedGame();
         } else {
             currentDifficulty = getIntent().getStringExtra("difficulty_level");
-            board = new GameManager(currentDifficulty,true);
+            board = new GameManager(currentDifficulty, true);
             drawBoard();
         }
 
@@ -156,6 +157,7 @@ public class GameActivity extends AppCompatActivity {
             }
         }
     }
+
     private void endGame(boolean isWin, long elapsedMillis, boolean perfect) {
         isGameOver = true;
         handler.removeCallbacks(updateTimerRunnable);
@@ -165,13 +167,108 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
         gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
 
+        if (isWin) {
+            animateVictory();
+            Handler endHandler = new Handler();
+            endHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showEndDialog(isWin);
+                }
+            }, 2500);
+        } else {
+            for (int i = 0; i < 25; i++) {
+                int delay = i * 200;
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        gridLayout.setTranslationX(20);
+                    }
+                }, delay);
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        gridLayout.setTranslationX(-20);
+                    }
+                }, delay + 100);
+            }
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    gridLayout.setTranslationX(0);
+                }
+            }, 2500);
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showEndDialog(isWin);
+                }
+            }, 5000);
+        }
+    }
+
+    private void showEndDialog(boolean isWin) {
+        if (isFinishing() || isDestroyed()) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(isWin ? "כל הכבוד! 🎉" : "המשחק הסתיים");
         builder.setMessage(isWin ? "פתרת את הסודוקו בהצלחה!\nתחזור למסך הבית."
                 : "הגעת ל־3 פסילות.\nהמשחק יסתיים ותחזור למסך הבית.");
         builder.setCancelable(false);
-        builder.setPositiveButton("אישור", (dialog, which) -> finish());
+        builder.setPositiveButton("אישור", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
         builder.show();
+    }
+
+    private void animateVictory() {
+        int rows = 9;
+        int cols = 9;
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            View cell = gridLayout.getChildAt(i);
+            int row = i / cols;
+            int col = i % cols;
+            long delay = (row + col) * 100L;
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startManualJump(cell);
+                }
+            }, delay);
+        }
+    }
+
+    private void startManualJump(View view) {
+        final Handler jumpHandler = new Handler();
+        final int jumpHeight = 30;
+        final int steps = 10;
+        final int delayPerStep = 10;
+        for (int i = 1; i <= steps; i++) {
+            final int step = i;
+            jumpHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float y = -(jumpHeight * ((float) step / steps));
+                    view.setTranslationY(y);
+                }
+            }, i * delayPerStep);
+        }
+        for (int i = 1; i <= steps; i++) {
+            final int step = i;
+            jumpHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    float y = -jumpHeight + (jumpHeight * ((float) step / steps));
+                    view.setTranslationY(y);
+                }
+            }, (steps * delayPerStep) + (i * delayPerStep));
+        }
     }
 
     private void placeNumber(int number) {
@@ -298,7 +395,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void saveStats(boolean isWin, long elapsedMillis, boolean perfect) {
-        String level = getIntent().getStringExtra("difficulty_level"); // easy/medium/hard
+        String level = getIntent().getStringExtra("difficulty_level");
         SharedPreferences statsPrefs = getSharedPreferences("sudoku_stats", MODE_PRIVATE);
         SharedPreferences.Editor editor = statsPrefs.edit();
 
@@ -338,7 +435,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private long parseTime(String time) {
-        // time = "mm:ss"
         String[] parts = time.split(":");
         int minutes = Integer.parseInt(parts[0]);
         int seconds = Integer.parseInt(parts[1]);
@@ -366,6 +462,7 @@ public class GameActivity extends AppCompatActivity {
         }
         return result;
     }
+
     private void saveCurrentGame(boolean save) {
         if (username.isEmpty()) return;
 
@@ -385,35 +482,39 @@ public class GameActivity extends AppCompatActivity {
                 return;
             }
         } else {
-             boardStateToSave = "";
-             initialBoardStateToSave = "";
+            boardStateToSave = "";
+            initialBoardStateToSave = "";
         }
 
-        new Thread(() -> {
-            try {
-                SavedGameDao dao = DataBase.getInstance(this).savedGameDao();
-                if (!save) {
-                    dao.deleteSavedGameForUser(username);
-                } else {
-                    dao.saveGame(new SavedGameEntity(
-                            difficultyToSave,
-                            timerToSave,
-                            strikesToSave,
-                            boardStateToSave,
-                            initialBoardStateToSave,
-                            username
-                    ));
-                    SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                    gamePrefs.edit().putBoolean("hasSavedGame_" + username, true).apply();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (save) {
-                     SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                     gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    SavedGameDao dao = DataBase.getInstance(GameActivity.this).savedGameDao();
+                    if (!save) {
+                        dao.deleteSavedGameForUser(username);
+                    } else {
+                        dao.saveGame(new SavedGameEntity(
+                                difficultyToSave,
+                                timerToSave,
+                                strikesToSave,
+                                boardStateToSave,
+                                initialBoardStateToSave,
+                                username
+                        ));
+                        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
+                        gamePrefs.edit().putBoolean("hasSavedGame_" + username, true).apply();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    if (save) {
+                        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
+                        gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
+                    }
                 }
             }
-        }).start();
+        });
+        thread.start();
     }
 
 
@@ -429,54 +530,74 @@ public class GameActivity extends AppCompatActivity {
 
     private void loadSavedGame() {
         gridLayout.setEnabled(false);
-        new Thread(() -> {
-            SavedGameEntity savedGame = DataBase.getInstance(this)
-                    .savedGameDao()
-                    .getSavedGameForUser(username);
+        Thread loadThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SavedGameEntity savedGame = DataBase.getInstance(GameActivity.this)
+                        .savedGameDao()
+                        .getSavedGameForUser(username);
 
-            if (savedGame != null) {
-                runOnUiThread(() -> {
-                    try {
-                        currentDifficulty = savedGame.getDifficultyLevel();
-                        
-                        String savedBoard = savedGame.getBoardState();
-                        String savedInitial = savedGame.getInitialBoardState();
-                        
-                        if (savedInitial != null && !savedInitial.isEmpty() && savedInitial.length() == 81 && savedBoard.length() == 81) {
-                            board = new GameManager(savedBoard, savedInitial);
-                        } else if (savedBoard.length() == 81) {
-                            board = new GameManager(savedBoard, false); 
-                        } else {
-                             throw new IllegalStateException("Invalid board length");
+                if (savedGame != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                currentDifficulty = savedGame.getDifficultyLevel();
+
+                                String savedBoard = savedGame.getBoardState();
+                                String savedInitial = savedGame.getInitialBoardState();
+
+                                if (savedInitial != null && !savedInitial.isEmpty() && savedInitial.length() == 81 && savedBoard.length() == 81) {
+                                    board = new GameManager(savedBoard, savedInitial);
+                                } else if (savedBoard.length() == 81) {
+                                    board = new GameManager(savedBoard, false);
+                                } else {
+                                    throw new IllegalStateException("Invalid board length");
+                                }
+
+                                strikes = savedGame.getMistakes();
+                                updateStrikesUI();
+                                startTime = System.currentTimeMillis() - savedGame.getTimer();
+                                drawBoard();
+                                gridLayout.setEnabled(true);
+                                handler.postDelayed(updateTimerRunnable, 1000);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(GameActivity.this, "שגיאה בטעינת נתונים: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
+                                gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
+
+                                Thread deleteThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        DataBase.getInstance(GameActivity.this)
+                                                .savedGameDao()
+                                                .deleteSavedGameForUser(username);
+                                    }
+                                });
+                                deleteThread.start();
+                                handler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        finish();
+                                    }
+                                }, 3500);
+                            }
                         }
-
-                        strikes = savedGame.getMistakes();
-                        updateStrikesUI();
-                        startTime = System.currentTimeMillis() - savedGame.getTimer();
-                        drawBoard();
-                        gridLayout.setEnabled(true);
-                        handler.postDelayed(updateTimerRunnable, 1000);
-                    } catch (Exception e) {
-                         e.printStackTrace();
-                         Toast.makeText(GameActivity.this, "שגיאה בטעינת נתונים: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                         SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                         gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
-
-                         new Thread(() -> {
-                             DataBase.getInstance(this).savedGameDao().deleteSavedGameForUser(username);
-                         }).start();
-
-                         handler.postDelayed(() -> finish(), 3500);
-                    }
-                });
-            } else {
-                runOnUiThread(() -> {
-                    android.widget.Toast.makeText(GameActivity.this, "שגיאה בטעינת המשחק", android.widget.Toast.LENGTH_SHORT).show();
-                    SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                    gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
-                    finish();
-                });
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            android.widget.Toast.makeText(GameActivity.this, "שגיאה בטעינת המשחק", android.widget.Toast.LENGTH_SHORT).show();
+                            SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
+                            gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
+                            finish();
+                        }
+                    });
+                }
             }
-        }).start();
+        });
+        loadThread.start();
     }
 }
