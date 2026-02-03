@@ -25,7 +25,6 @@ public class HomeActivity extends AppCompatActivity {
     Button home_btnNewGame;
     Button home_btnContinueGame;
     Toolbar home_toolbar;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
