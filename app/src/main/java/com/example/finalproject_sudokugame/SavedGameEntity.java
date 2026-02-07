@@ -15,14 +15,16 @@ public class SavedGameEntity {
     private int mistakes;
     private String boardState;
     private String initialBoardState;
+    private String solutionBoard;
 
-    public SavedGameEntity(String difficultyLevel, long timer, int mistakes, String boardState, String initialBoardState, @androidx.annotation.NonNull String username) {
+    public SavedGameEntity(String difficultyLevel, long timer, int mistakes, String boardState, String initialBoardState, String solutionBoard, @androidx.annotation.NonNull String username) {
         this.username = username;
         this.difficultyLevel = difficultyLevel;
         this.timer = timer;
         this.mistakes = mistakes;
         this.boardState = boardState;
         this.initialBoardState = initialBoardState;
+        this.solutionBoard = solutionBoard;
     }
 
     @androidx.annotation.NonNull
@@ -63,5 +65,13 @@ public class SavedGameEntity {
     }
     public void setInitialBoardState(String initialBoardState) {
         this.initialBoardState = initialBoardState;
+    }
+
+    public String getSolutionBoard() {
+        return solutionBoard;
+    }
+
+    public void setSolutionBoard(String solutionBoard) {
+        this.solutionBoard = solutionBoard;
     }
 }
