@@ -7,7 +7,8 @@ public class GameManager {
     private int selectedCol;
     private final int SIZE = 9;
     private int[][] originalBoard;
-    private final int[][] solution = {
+    private int[][] solution;
+    private final int[][] DEFAULT_SOLUTION = {
             {5, 3, 4, 6, 7, 8, 9, 1, 2},
             {6, 7, 2, 1, 9, 5, 3, 4, 8},
             {1, 9, 8, 3, 4, 2, 5, 6, 7},
@@ -26,9 +27,11 @@ public class GameManager {
         selectedCol = -1;
 
         if (isDifficulty) {
+            solution = new int[SIZE][SIZE];
             for (int r = 0; r < SIZE; r++) {
-                System.arraycopy(solution[r], 0, board[r], 0, SIZE);
-                System.arraycopy(solution[r], 0, originalBoard[r], 0, SIZE);
+                System.arraycopy(DEFAULT_SOLUTION[r], 0, board[r], 0, SIZE);
+                System.arraycopy(DEFAULT_SOLUTION[r], 0, originalBoard[r], 0, SIZE);
+                System.arraycopy(DEFAULT_SOLUTION[r], 0, solution[r], 0, SIZE);
             }
 
             int emptyCells;
@@ -47,15 +50,36 @@ public class GameManager {
     }
 
     public GameManager(String currentBoardStr, String originalBoardStr) {
+        this(currentBoardStr, originalBoardStr, null);
+    }
+
+    public GameManager(String currentBoardStr, String originalBoardStr, String solutionBoardStr) {
         board = new int[SIZE][SIZE];
         originalBoard = new int[SIZE][SIZE];
+        solution = new int[SIZE][SIZE];
         selectedRow = -1;
         selectedCol = -1;
 
-        loadDualBoards(currentBoardStr, originalBoardStr);
+        if (solutionBoardStr == null || solutionBoardStr.isEmpty()) {
+            solution = DEFAULT_SOLUTION;
+        }
+
+        loadTripleBoards(currentBoardStr, originalBoardStr, solutionBoardStr);
+    }
+
+    public GameManager(int[][] board, int[][] solution) {
+        this.board = board;
+        this.solution = solution;
+        this.originalBoard = new int[SIZE][SIZE];
+        for (int r = 0; r < SIZE; r++) {
+            System.arraycopy(board[r], 0, originalBoard[r], 0, SIZE);
+        }
+        this.selectedRow = -1;
+        this.selectedCol = -1;
     }
 
     private void loadBoardFromString(String boardState) {
+        solution = DEFAULT_SOLUTION;
         int index = 0;
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -67,17 +91,19 @@ public class GameManager {
         }
     }
 
-    private void loadDualBoards(String currentStr, String originalStr) {
+    private void loadTripleBoards(String currentStr, String originalStr, String solutionStr) {
         int index = 0;
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 if (index >= currentStr.length() || index >= originalStr.length()) break;
 
-                int currVal = Character.getNumericValue(currentStr.charAt(index));
-                int origVal = Character.getNumericValue(originalStr.charAt(index));
-
-                board[row][col] = currVal;
-                originalBoard[row][col] = origVal;
+                board[row][col] = Character.getNumericValue(currentStr.charAt(index));
+                originalBoard[row][col] = Character.getNumericValue(originalStr.charAt(index));
+                
+                if (solutionStr != null && index < solutionStr.length()) {
+                    solution[row][col] = Character.getNumericValue(solutionStr.charAt(index));
+                }
+                
                 index++;
             }
         }
@@ -145,10 +171,19 @@ public class GameManager {
     }
 
     public String getOriginalBoardString() {
+        return getBoardString(originalBoard);
+    }
+
+    public String getSolutionBoardString() {
+        return getBoardString(solution);
+    }
+
+    private String getBoardString(int[][] targetBoard) {
+        if (targetBoard == null) return "";
         StringBuilder sb = new StringBuilder();
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                int value = originalBoard[row][col];
+                int value = targetBoard[row][col];
                 if (value < 0 || value > 9) value = 0;
                 sb.append(value);
             }
