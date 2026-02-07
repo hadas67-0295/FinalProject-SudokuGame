@@ -1,5 +1,6 @@
 package com.example.finalproject_sudokugame;
 
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -35,6 +36,13 @@ public class GameActivity extends AppCompatActivity {
     private String username;
     private String currentDifficulty;
 
+    private enum HighlightType {
+        SELECTED,
+        SAME_NUMBER,
+        RELATED,
+        NONE
+    }
+
     Handler handler = new Handler();
     long startTime;
 
@@ -62,7 +70,6 @@ public class GameActivity extends AppCompatActivity {
             board = new GameManager(currentDifficulty, true);
             drawBoard();
         }
-
 
         game_btnReturnHome.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,10 +111,17 @@ public class GameActivity extends AppCompatActivity {
     };
 
     private void drawBoard() {
-        if (isGameOver) return;
+        if (isGameOver)
+            return;
         gridLayout.removeAllViews();
         gridLayout.setColumnCount(9);
         gridLayout.setRowCount(9);
+
+        int selectedRow = board.getSelectedRow();
+        int selectedCol = board.getSelectedCol();
+        int selectedValue = (selectedRow >= 0 && selectedCol >= 0)
+                ? board.getCell(selectedRow, selectedCol)
+                : 0;
 
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
@@ -115,11 +129,9 @@ public class GameActivity extends AppCompatActivity {
                 cell.setTextSize(24);
                 cell.setGravity(Gravity.CENTER);
 
-                boolean isSelected =
-                        row == board.getSelectedRow() &&
-                                col == board.getSelectedCol();
+                HighlightType highlightType = getHighlightType(row, col, selectedRow, selectedCol, selectedValue);
 
-                Drawable background = createCellBackground(row, col, isSelected);
+                Drawable background = createCellBackground(row, col, highlightType);
                 cell.setBackground(background);
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -143,12 +155,12 @@ public class GameActivity extends AppCompatActivity {
                     }
                 } else {
                     cell.setText("");
-                    int finalI = row;
-                    int finalJ = col;
+                    int finalRow = row;
+                    int finalCol = col;
                     cell.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            board.selectCell(finalI, finalJ);
+                            board.selectCell(finalRow, finalCol);
                             GameActivity.this.drawBoard();
                         }
                     });
@@ -156,6 +168,34 @@ public class GameActivity extends AppCompatActivity {
                 gridLayout.addView(cell);
             }
         }
+    }
+
+    private HighlightType getHighlightType(int row, int col, int selectedRow, int selectedCol, int selectedValue) {
+        if (selectedRow < 0 || selectedCol < 0) {
+            return HighlightType.NONE;
+        }
+
+        if (row == selectedRow && col == selectedCol) {
+            return HighlightType.SELECTED;
+        }
+
+        int cellValue = board.getCell(row, col);
+        if (cellValue != 0 && selectedValue != 0 && cellValue == selectedValue) {
+            return HighlightType.SAME_NUMBER;
+        }
+
+        if (row == selectedRow || col == selectedCol) {
+            return HighlightType.RELATED;
+        }
+
+        int boxRowStart = (selectedRow / 3) * 3;
+        int boxColStart = (selectedCol / 3) * 3;
+        if (row >= boxRowStart && row < boxRowStart + 3 &&
+                col >= boxColStart && col < boxColStart + 3) {
+            return HighlightType.RELATED;
+        }
+
+        return HighlightType.NONE;
     }
 
     private void endGame(boolean isWin, long elapsedMillis, boolean perfect) {
@@ -300,7 +340,7 @@ public class GameActivity extends AppCompatActivity {
         handler.removeCallbacks(updateTimerRunnable);
     }
 
-    private Drawable createCellBackground(int row, int col, boolean isSelected) {
+    private Drawable createCellBackground(int row, int col, HighlightType highlightType) {
         float density = getResources().getDisplayMetrics().density;
 
         int thinBorder = (int) (1 * density);
@@ -324,10 +364,23 @@ public class GameActivity extends AppCompatActivity {
         GradientDrawable bottomBorder = new GradientDrawable();
         bottomBorder.setColor(Color.BLACK);
 
+        int backgroundColor;
+        switch (highlightType) {
+            case SELECTED:
+                backgroundColor = getResources().getColor(R.color.cell_selected, getTheme());
+                break;
+            case SAME_NUMBER:
+                backgroundColor = getResources().getColor(R.color.cell_same_number, getTheme());
+                break;
+            case RELATED:
+                backgroundColor = getResources().getColor(R.color.cell_related, getTheme());
+                break;
+            default:
+                backgroundColor = getResources().getColor(R.color.cell_default, getTheme());
+                break;
+        }
         GradientDrawable center = new GradientDrawable();
-        center.setColor(isSelected
-                ? Color.parseColor("#90CAF9")
-                : Color.WHITE);
+        center.setColor(backgroundColor);
 
         Drawable[] layers = {leftBorder, topBorder, rightBorder, bottomBorder, center};
         LayerDrawable layerDrawable = new LayerDrawable(layers);

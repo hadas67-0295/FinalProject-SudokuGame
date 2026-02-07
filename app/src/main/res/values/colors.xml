@@ -3,4 +3,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="profile_button_default">#E0E0E0</color>
+
+    <color name="cell_default">#FFFFFFFF</color>
+    <color name="cell_selected">#90CAF9</color>
+    <color name="cell_related">#FFF8E1</color>
+    <color name="cell_same_number">#E1BEE7</color>
 </resources>
