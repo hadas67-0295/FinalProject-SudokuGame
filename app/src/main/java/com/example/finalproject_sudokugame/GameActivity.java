@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.app.ProgressDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -61,14 +62,13 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
         username = userPrefs.getString("username", "");
 
+        currentDifficulty = getIntent().getStringExtra("difficulty_level");
         boolean resumeGame = getIntent().getBooleanExtra("resume_game", false);
 
         if (resumeGame) {
             loadSavedGame();
         } else {
-            currentDifficulty = getIntent().getStringExtra("difficulty_level");
-            board = new GameManager(currentDifficulty, true);
-            drawBoard();
+            initializeGameWithAi();
         }
 
         game_btnReturnHome.setOnClickListener(new View.OnClickListener() {
@@ -79,10 +79,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        if (!resumeGame) {
-            startTime = System.currentTimeMillis();
-            handler.postDelayed(updateTimerRunnable, 1000);
-        }
 
         for (int num = 1; num <= 9; num++) {
             int buttonId = getResources().getIdentifier("game_btn" + num, "id", getPackageName());
@@ -95,6 +91,49 @@ public class GameActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void initializeGameWithAi() {
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("מייצר לוח עם AI...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        int emptyCells;
+        if (currentDifficulty.equalsIgnoreCase("easy")) {
+            emptyCells = 20;
+        } else if (currentDifficulty.equalsIgnoreCase("medium")) {
+            emptyCells = 40;
+        } else {
+            emptyCells = 55;
+        }
+
+        SudokuAiService aiService = new SudokuAiService(getString(R.string.google_api_key));
+        aiService.generateSudoku(emptyCells, new SudokuAiService.SudokuCallback() {
+            @Override
+            public void onSuccess(int[][] puzzle, int[][] solution) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    board = new GameManager(puzzle, solution);
+                    startTime = System.currentTimeMillis();
+                    handler.postDelayed(updateTimerRunnable, 1000);
+                    drawBoard();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(GameActivity.this, "AI Error: " + error + ". Falling back to local generation.", Toast.LENGTH_LONG).show();
+
+                    board = new GameManager(currentDifficulty, true);
+                    startTime = System.currentTimeMillis();
+                    handler.postDelayed(updateTimerRunnable, 1000);
+                    drawBoard();
+                });
+            }
+        });
     }
 
     private Runnable updateTimerRunnable = new Runnable() {
@@ -524,12 +563,14 @@ public class GameActivity extends AppCompatActivity {
         final int strikesToSave = strikes;
         final String boardStateToSave;
         final String initialBoardStateToSave;
+        final String solutionBoardToSave;
 
         if (save) {
             if (board == null) return;
             try {
                 boardStateToSave = getBoardStateAsString();
                 initialBoardStateToSave = board.getOriginalBoardString();
+                solutionBoardToSave = board.getSolutionBoardString();
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
@@ -537,6 +578,7 @@ public class GameActivity extends AppCompatActivity {
         } else {
             boardStateToSave = "";
             initialBoardStateToSave = "";
+            solutionBoardToSave = "";
         }
 
         Thread thread = new Thread(new Runnable() {
@@ -553,6 +595,7 @@ public class GameActivity extends AppCompatActivity {
                                 strikesToSave,
                                 boardStateToSave,
                                 initialBoardStateToSave,
+                                solutionBoardToSave,
                                 username
                         ));
                         SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
@@ -599,9 +642,10 @@ public class GameActivity extends AppCompatActivity {
 
                                 String savedBoard = savedGame.getBoardState();
                                 String savedInitial = savedGame.getInitialBoardState();
+                                String savedSolution = savedGame.getSolutionBoard();
 
                                 if (savedInitial != null && !savedInitial.isEmpty() && savedInitial.length() == 81 && savedBoard.length() == 81) {
-                                    board = new GameManager(savedBoard, savedInitial);
+                                    board = new GameManager(savedBoard, savedInitial, savedSolution);
                                 } else if (savedBoard.length() == 81) {
                                     board = new GameManager(savedBoard, false);
                                 } else {
