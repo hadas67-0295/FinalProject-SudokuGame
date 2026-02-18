@@ -68,8 +68,9 @@ public class ProfileActivity extends AppCompatActivity {
                 ViewCompat.getBackgroundTintList(profile_btnHard).getDefaultColor() :
                 ContextCompat.getColor(this,R.color.profile_button_default);
 
-        setSupportActionBar(profile_toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         statsPrefs = getSharedPreferences("sudoku_stats", Context.MODE_PRIVATE);
         userPrefs = getSharedPreferences("sudoku_user", Context.MODE_PRIVATE);
@@ -106,12 +107,12 @@ public class ProfileActivity extends AppCompatActivity {
         int bestStreak = statsPrefs.getInt(prefix + level + "_bestStreak", 0);
         int perfectWins = statsPrefs.getInt(prefix + level + "_perfectWins", 0);
 
-        profile_tvGamePlayed.setText("משחקים: " + played);
-        profile_tvGameWins.setText("ניצחונות: " + wins);
-        profile_tvGameLosses.setText("הפסדים: " + losses);
-        profile_tvGameBestTime.setText("הזמן הטוב ביותר: " + bestTime);
-        profile_tvGameBestWinsStreak.setText("רצף ניצחונות: " + bestStreak);
-        profile_tvGamePerfectWins.setText("ניצחונות מושלמים: " + perfectWins);
+        profile_tvGamePlayed.setText(getString(R.string.stats_played, played));
+        profile_tvGameWins.setText(getString(R.string.stats_wins, wins));
+        profile_tvGameLosses.setText(getString(R.string.stats_losses, losses));
+        profile_tvGameBestTime.setText(getString(R.string.stats_best_time, bestTime));
+        profile_tvGameBestWinsStreak.setText(getString(R.string.stats_streak, bestStreak));
+        profile_tvGamePerfectWins.setText(getString(R.string.stats_perfect, perfectWins));
     }
 
     @Override
@@ -145,11 +146,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void updateUI() {
         boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
-        String username = userPrefs.getString("username", "אורח");
+        String username = userPrefs.getString("username", "Guest");
 
         if (!isLoggedIn) {
-            profile_tvUserName.setText("שלום אורח");
-            profile_tvGuestMode.setText("התחבר כדי לראות סטטיסטיקות");
+            profile_tvUserName.setText(getString(R.string.hello_guest));
+            profile_tvGuestMode.setText(getString(R.string.login_to_see_stats));
 
             profile_tvGamePlayed.setText("");
             profile_tvGameWins.setText("");
@@ -162,7 +163,7 @@ public class ProfileActivity extends AppCompatActivity {
             profile_btnMedium.setEnabled(false);
             profile_btnHard.setEnabled(false);
         } else {
-            profile_tvUserName.setText("שלום, " + username);
+            profile_tvUserName.setText(getString(R.string.hello_user, username));
             profile_tvGuestMode.setText("");
 
             profile_btnEasy.setEnabled(true);

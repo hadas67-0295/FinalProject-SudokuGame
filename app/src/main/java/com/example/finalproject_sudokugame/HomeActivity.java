@@ -23,8 +23,9 @@ public class HomeActivity extends AppCompatActivity {
 
     Button home_btnInstructions;
     Button home_btnNewGame;
-    Button home_btnContinueGame;
     Toolbar home_toolbar;
+    Button home_btnContinueGame;
+    private boolean isStartingActivity = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,9 @@ public class HomeActivity extends AppCompatActivity {
         home_toolbar = findViewById(R.id.home_toolbar);
 
         setSupportActionBar(home_toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
         SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
         boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
         String username = userPrefs.getString("username", "");
@@ -60,6 +63,8 @@ public class HomeActivity extends AppCompatActivity {
         home_btnNewGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isStartingActivity) return;
+                isStartingActivity = true;
                 Intent intent = new Intent(HomeActivity.this, DifficultyActivity.class);
                 startActivity(intent);
             }
@@ -68,12 +73,14 @@ public class HomeActivity extends AppCompatActivity {
         home_btnContinueGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isStartingActivity) return;
                 if (isLoggedIn&&hasSavedGame) {
+                    isStartingActivity = true;
                     Intent intent = new Intent(HomeActivity.this, GameActivity.class);
                     intent.putExtra("resume_game", true);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(HomeActivity.this, "אין משחק שמור להמשיך", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HomeActivity.this, getString(R.string.no_saved_game), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -108,24 +115,15 @@ public class HomeActivity extends AppCompatActivity {
 
     private void showInstructionsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-        builder.setTitle("הוראות המשחק");
-        builder.setMessage(
-                "ברוכים הבאים למשחק הסודוקו!\n\n" +
-                        "מטרת המשחק היא למלא את כל לוח הסודוקו במספרים מ-1 עד 9, כך שיתקיימו שלושת הכללים הבאים:\n\n" +
-                        "1. כל שורה חייבת להכיל את המספרים 1–9 ללא כפילויות.\n" +
-                        "2. כל עמודה חייבת להכיל את המספרים 1–9 ללא כפילויות.\n" +
-                        "3. כל ריבוע 3×3 חייב להכיל את המספרים 1–9 ללא כפילויות.\n\n" +
-                        "טיפים לפתרון:\n" +
-                        "• התחילו מהתאים שמספר האפשרויות בהם קטן.\n" +
-                        "• חפשו מספרים שחייבים להופיע בגלל חסימות של שורות/עמודות סמוכות.\n" +
-                        "• אל תפחדו לנחש – אבל עשו זאת בחכמה.\n\n" +
-                        "בהצלחה!");
-        builder.setPositiveButton("סגור", null);
+        builder.setTitle(getString(R.string.instructions_title));
+        builder.setMessage(getString(R.string.instructions_text));
+        builder.setPositiveButton(getString(R.string.close), null);
         builder.show();
     }
     @Override
     protected void onResume() {
         super.onResume();
+        isStartingActivity = false;
         SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
         boolean isLoggedIn = userPrefs.getBoolean("is_logged_in", false);
         String username = userPrefs.getString("username", "");

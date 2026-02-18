@@ -20,6 +20,18 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"/>
 
+    <TextView
+        android:id="@+id/game_tvBoardSource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/game_tvTimer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="4dp"/>
+
 
     <GridLayout
         android:id="@+id/game_gridLayout"
@@ -29,21 +41,21 @@
         android:layout_marginBottom="16dp"
         android:columnCount="9"
         android:rowCount="9"
-        app:layout_constraintBottom_toTopOf="@id/game_btnAI"
+        app:layout_constraintBottom_toTopOf="@id/game_btnHint"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/game_tvTimer"
+        app:layout_constraintTop_toBottomOf="@id/game_tvBoardSource"
         app:layout_constraintVertical_bias="0.088" />
 
     <Button
-        android:id="@+id/game_btnAI"
+        android:id="@+id/game_btnHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
-        android:text="רמז"
+        android:text="Hint"
         app:layout_constraintBottom_toTopOf="@id/game_btnReturnHome"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -53,7 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="52dp"
-        android:text="חזרה"
+        android:text="Back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -65,7 +77,7 @@
         android:layout_marginBottom="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/game_btnAI"
+        app:layout_constraintEnd_toStartOf="@id/game_btnHint"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout

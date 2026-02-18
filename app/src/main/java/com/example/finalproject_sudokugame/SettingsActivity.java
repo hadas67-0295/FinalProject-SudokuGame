@@ -4,11 +4,10 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
-
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.audiofx.Equalizer;
 import android.os.Build;
 import android.os.Bundle;
 import android.Manifest;
@@ -72,7 +71,9 @@ public class SettingsActivity extends AppCompatActivity {
         settings_switchVibration = findViewById(R.id.settings_switchVibration);
 
         setSupportActionBar(settings_toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         settingsPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         userPrefs = getSharedPreferences("sudoku_user", Context.MODE_PRIVATE);
@@ -105,10 +106,10 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                     }
 
-                    Toast.makeText(SettingsActivity.this, "התראות הופעלו", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingsActivity.this, getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show();
 
                 } else {
-                    Toast.makeText(SettingsActivity.this, "התראות כובו", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingsActivity.this, getString(R.string.notifications_disabled), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -135,11 +136,11 @@ public class SettingsActivity extends AppCompatActivity {
                 }
 
                 Toast.makeText(SettingsActivity.this,
-                        "רטט הופעל",
+                        getString(R.string.vibration_enabled),
                         Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(SettingsActivity.this,
-                        "רטט כובה",
+                        getString(R.string.vibration_disabled),
                         Toast.LENGTH_SHORT).show();
             }
         });
@@ -163,7 +164,7 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
             }
             if (id == R.id.menu_settings) {
-                Toast.makeText(this, "אתה כבר במסך ההגדרות", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.already_in_settings), Toast.LENGTH_SHORT).show();
                 return true;
             }
 
@@ -172,69 +173,77 @@ public class SettingsActivity extends AppCompatActivity {
 
         private void showAccountDialog () {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("הגדרות חשבון");
+            builder.setTitle(getString(R.string.account_settings));
             SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
             String username = userPrefs.getString("username", "");
-            builder.setItems(new CharSequence[]{"התנתק"}, (dialog, which) -> {
-                switch (which) {
-                    case 0:
-                        userPrefs.edit().putBoolean("is_logged_in", false).apply();
-
-
-
-                        Toast.makeText(SettingsActivity.this,
-                                "התנתקת מהחשבון",
-                                Toast.LENGTH_SHORT).show();
-
-                        Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        break;
+            builder.setPositiveButton(getString(R.string.logout), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    logoutUser();
                 }
             });
-            builder.setNegativeButton("סגור", null);
+            builder.setNegativeButton(getString(R.string.close), null);
             builder.show();
         }
+
+    private void logoutUser() {
+        userPrefs.edit().putBoolean("is_logged_in", false).apply();
+        Toast.makeText(SettingsActivity.this,
+                getString(R.string.logout_success),
+                Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(SettingsActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     private void showMusicDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("הגדרות מוזיקה");
+        builder.setTitle(getString(R.string.music_settings));
 
         boolean musicEnabled = settingsPrefs.getBoolean(KEY_MUSIC, true);
         int checkedItem = musicEnabled ? 0 : 1;
 
         builder.setSingleChoiceItems(
-                new CharSequence[]{"הפעל מוזיקה", "כבה מוזיקה"},
+                new CharSequence[]{getString(R.string.enable_music), getString(R.string.disable_music)},
                 checkedItem,
                 (dialog, which) -> {
 
                     if (which == 0) {
                         settingsPrefs.edit().putBoolean(KEY_MUSIC, true).apply();
 
-                        Intent musicIntent = new Intent(SettingsActivity.this, MusicService.class);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startForegroundService(musicIntent);
-                        } else {
-                            startService(musicIntent);
+                        try {
+                            Intent musicIntent = new Intent(SettingsActivity.this, MusicService.class);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                startForegroundService(musicIntent);
+                            } else {
+                                startService(musicIntent);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
 
                         Toast.makeText(SettingsActivity.this,
-                                "המוזיקה הופעלה",
+                                getString(R.string.music_enabled),
                                 Toast.LENGTH_SHORT).show();
 
                     } else {
                         settingsPrefs.edit().putBoolean(KEY_MUSIC, false).apply();
 
-                        stopService(new Intent(SettingsActivity.this, MusicService.class));
+                        try {
+                            stopService(new Intent(SettingsActivity.this, MusicService.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         Toast.makeText(SettingsActivity.this,
-                                "המוזיקה כובתה",
+                                getString(R.string.music_disabled),
                                 Toast.LENGTH_SHORT).show();
                     }
 
                     dialog.dismiss();
                 });
 
-        builder.setNegativeButton("סגור", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(getString(R.string.close), (dialog, which) -> dialog.dismiss());
 
         builder.show();
     }
@@ -252,10 +261,12 @@ public class SettingsActivity extends AppCompatActivity {
 
                 settingsPrefs.edit().putBoolean(KEY_NOTIFICATIONS, true).apply();
                 settings_switchNotifications.setChecked(true);
-                Toast.makeText(this, "התראות הופעלו", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.notifications_enabled), Toast.LENGTH_SHORT).show();
 
             } else {
-                Toast.makeText(this, "לא ניתן לשלוח התראות ללא הרשאה", Toast.LENGTH_LONG).show();
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                    Toast.makeText(this, getString(R.string.no_notification_permission), Toast.LENGTH_LONG).show();
+                }
             }
         }
     }

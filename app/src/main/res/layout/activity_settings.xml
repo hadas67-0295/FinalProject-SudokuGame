@@ -11,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:title="הגדרות"
+        android:title="Settings"
         android:titleTextColor="@android:color/white"
-        app:navigationContentDescription="חזור אחורה"
+        app:navigationContentDescription="Go Back"
         app:titleCentered="true" />
 
         <LinearLayout
@@ -38,7 +38,7 @@
 
                     <TextView
                         android:id="@+id/settings_tvAccount"
-                        android:text="הגדרות חשבון"
+                        android:text="Account Settings"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
@@ -48,7 +48,7 @@
                         android:id="@+id/settings_btnAccount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="פתח הגדרות חשבון" />
+                        android:text="Open Account Settings" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -69,7 +69,7 @@
 
                     <TextView
                         android:id="@+id/settings_tvMusic"
-                        android:text="הגדרות מוזיקה"
+                        android:text="Music Settings"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                         android:id="@+id/settings_btnMusic"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="פתח הגדרות מוזיקה" />
+                        android:text="Open Music Settings" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -100,7 +100,7 @@
 
                     <TextView
                         android:id="@+id/settings_tvNotification"
-                        android:text="התראות"
+                        android:text="Notifications"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
@@ -110,7 +110,7 @@
                         android:id="@+id/settings_switchNotifications"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="התראות פעילות" />
+                        android:text="Enable/Disable Notifications" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -131,7 +131,7 @@
 
                     <TextView
                         android:id="@+id/settings_tvVibration"
-                        android:text="רטט"
+                        android:text="Vibration"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_width="match_parent"
@@ -141,7 +141,7 @@
                         android:id="@+id/settings_switchVibration"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="רטט פעיל" />
+                        android:text="Enable/Disable Vibration" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

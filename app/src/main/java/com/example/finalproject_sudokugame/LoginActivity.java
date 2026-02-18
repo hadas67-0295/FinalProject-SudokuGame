@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText login_etUserName;
     EditText login_etPassword;
     Button login_btnLogin;
-    Button login_btnRegistrationr;
+    Button login_btnRegistration;
     TextView login_tvLogin;
     Toolbar login_toolbar;
 
@@ -42,16 +42,17 @@ public class LoginActivity extends AppCompatActivity {
         login_etUserName = findViewById(R.id.login_etUserName);
         login_etPassword = findViewById(R.id.login_etPassword);
         login_btnLogin = findViewById(R.id.login_btnLogin);
-        login_btnRegistrationr = findViewById(R.id.login_btnRegistrationr);
+        login_btnRegistration = findViewById(R.id.login_btnRegistration);
         login_tvLogin = findViewById(R.id.login_tvLogin);
         login_toolbar = findViewById(R.id.login_toolbar);
 
-        setSupportActionBar(login_toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         SharedPreferences sharedPreferences = getSharedPreferences("sudoku_user", Context.MODE_PRIVATE);
 
-        login_btnRegistrationr.setOnClickListener(new View.OnClickListener() {
+        login_btnRegistration.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String username = login_etUserName.getText().toString().trim();
@@ -64,13 +65,13 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putBoolean("is_logged_in", true);
                     editor.apply();
 
-                    Toast.makeText(LoginActivity.this, "המשתמש נרשם בהצלחה!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.registration_success), Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(LoginActivity.this, "נא למלא שם משתמש וסיסמה", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.fill_fields), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -89,12 +90,12 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean("is_logged_in", true);
                     editor.apply();
-                    Toast.makeText(LoginActivity.this, "התחברות הצליחה!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    Toast.makeText(LoginActivity.this, "לא נמצאו נתוני משתמש תואמים", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                 }
             }
         });

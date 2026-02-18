@@ -8,49 +8,14 @@ public class GameManager {
     private final int SIZE = 9;
     private int[][] originalBoard;
     private int[][] solution;
-    private final int[][] DEFAULT_SOLUTION = {
-            {5, 3, 4, 6, 7, 8, 9, 1, 2},
-            {6, 7, 2, 1, 9, 5, 3, 4, 8},
-            {1, 9, 8, 3, 4, 2, 5, 6, 7},
-            {8, 5, 9, 7, 6, 1, 4, 2, 3},
-            {4, 2, 6, 8, 5, 3, 7, 9, 1},
-            {7, 1, 3, 9, 2, 4, 8, 5, 6},
-            {9, 6, 1, 5, 3, 7, 2, 8, 4},
-            {2, 8, 7, 4, 1, 9, 6, 3, 5},
-            {3, 4, 5, 2, 8, 6, 1, 7, 9}
-    };
 
-    public GameManager(String param, boolean isDifficulty) {
+    public GameManager(String boardState) {
         board = new int[SIZE][SIZE];
         originalBoard = new int[SIZE][SIZE];
+        solution = new int[SIZE][SIZE];
         selectedRow = -1;
         selectedCol = -1;
-
-        if (isDifficulty) {
-            solution = new int[SIZE][SIZE];
-            for (int r = 0; r < SIZE; r++) {
-                System.arraycopy(DEFAULT_SOLUTION[r], 0, board[r], 0, SIZE);
-                System.arraycopy(DEFAULT_SOLUTION[r], 0, originalBoard[r], 0, SIZE);
-                System.arraycopy(DEFAULT_SOLUTION[r], 0, solution[r], 0, SIZE);
-            }
-
-            int emptyCells;
-            if (param.equalsIgnoreCase("easy")) {
-                emptyCells = 20;
-            } else if (param.equalsIgnoreCase("medium")) {
-                emptyCells = 40;
-            } else {
-                emptyCells = 55;
-            }
-
-            removeCells(emptyCells);
-        } else {
-            loadBoardFromString(param);
-        }
-    }
-
-    public GameManager(String currentBoardStr, String originalBoardStr) {
-        this(currentBoardStr, originalBoardStr, null);
+        loadBoardFromString(boardState);
     }
 
     public GameManager(String currentBoardStr, String originalBoardStr, String solutionBoardStr) {
@@ -59,10 +24,6 @@ public class GameManager {
         solution = new int[SIZE][SIZE];
         selectedRow = -1;
         selectedCol = -1;
-
-        if (solutionBoardStr == null || solutionBoardStr.isEmpty()) {
-            solution = DEFAULT_SOLUTION;
-        }
 
         loadTripleBoards(currentBoardStr, originalBoardStr, solutionBoardStr);
     }
@@ -79,11 +40,15 @@ public class GameManager {
     }
 
     private void loadBoardFromString(String boardState) {
-        solution = DEFAULT_SOLUTION;
+        if (boardState == null || boardState.length() < 81) {
+            android.util.Log.e("GameManager", "Invalid board state string length: " + (boardState == null ? "null" : boardState.length()));
+            return;
+        }
         int index = 0;
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 int value = Character.getNumericValue(boardState.charAt(index));
+                if (value < 0 || value > 9) value = 0;
                 board[row][col] = value;
                 originalBoard[row][col] = (value == 0) ? 0 : value;
                 index++;
@@ -92,11 +57,13 @@ public class GameManager {
     }
 
     private void loadTripleBoards(String currentStr, String originalStr, String solutionStr) {
+        if (currentStr == null || originalStr == null || currentStr.length() < 81 || originalStr.length() < 81) {
+            android.util.Log.e("GameManager", "Invalid board string lengths");
+            return;
+        }
         int index = 0;
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
-                if (index >= currentStr.length() || index >= originalStr.length()) break;
-
                 board[row][col] = Character.getNumericValue(currentStr.charAt(index));
                 originalBoard[row][col] = Character.getNumericValue(originalStr.charAt(index));
                 
@@ -105,19 +72,6 @@ public class GameManager {
                 }
                 
                 index++;
-            }
-        }
-    }
-
-    private void removeCells(int count) {
-        java.util.Random rand = new java.util.Random();
-        while (count > 0) {
-            int r = rand.nextInt(SIZE);
-            int c = rand.nextInt(SIZE);
-            if (board[r][c] != 0) {
-                board[r][c] = 0;
-                originalBoard[r][c] = 0;
-                count--;
             }
         }
     }
@@ -145,6 +99,7 @@ public class GameManager {
      * return the value in the cell (0 if empty, 1–9 if filled)
      */
     public int getCell(int row, int col) {
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return 0;
         return board[row][col];
     }
 
@@ -155,6 +110,8 @@ public class GameManager {
      * parameter value the number to place (0 for empty, 1–9 for valid values)
      */
     public void setCell(int row, int col, int value) {
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE) return;
+        if (value < 0 || value > 9) return;
         board[row][col] = value;
     }
 
@@ -193,8 +150,8 @@ public class GameManager {
 
 
     /**
-     * בודק אם תא מסוים מכיל מספר שהמשתמש הכניס
-     * מחזיר true אם התא לא היה מלא מההתחלה והמשתמש הכניס מספר
+     * Checks if a specific cell contains a number entered by the user.
+     * Returns true if the cell was not originally filled and the user entered a number.
      */
     public boolean isUserCell(int row, int col) {
         return originalBoard[row][col] == 0 && board[row][col] != 0;

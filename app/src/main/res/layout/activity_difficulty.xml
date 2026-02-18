@@ -13,7 +13,7 @@
         android:id="@+id/difficulty_tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="בחר/י רמת קושי"
+        android:text="Select Difficulty"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textAlignment="viewStart"
@@ -35,24 +35,24 @@
         android:layout_marginTop="24dp">
 
         <Button
-            android:id="@+id/profile_btnEasy"
+            android:id="@+id/difficulty_btnEasy"
             android:layout_width="200dp"
             android:layout_height="56dp"
-            android:text="קל"
+            android:text="Easy"
             android:layout_marginVertical="8dp"/>
 
         <Button
-            android:id="@+id/profile_btnMedium"
+            android:id="@+id/difficulty_btnMedium"
             android:layout_width="200dp"
             android:layout_height="56dp"
-            android:text="בינוני"
+            android:text="Medium"
             android:layout_marginVertical="8dp"/>
 
         <Button
-            android:id="@+id/profile_btnHard"
+            android:id="@+id/difficulty_btnHard"
             android:layout_width="200dp"
             android:layout_height="56dp"
-            android:text="קשה"
+            android:text="Hard"
             android:layout_marginVertical="8dp"/>
     </LinearLayout>
 
@@ -60,7 +60,7 @@
         android:id="@+id/difficulty_btnReturnHome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="חזרה"
+        android:text="Back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"

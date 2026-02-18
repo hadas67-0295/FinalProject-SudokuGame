@@ -4,21 +4,21 @@
 
     <item
         android:id="@+id/menu_home"
-        android:title="מסך הבית"
+        android:title="Home"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_profile"
-        android:title="אזור אישי"
+        android:title="Profile"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_login"
-        android:title="התחברות / הרשמה"
+        android:title="Login / Register"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/menu_settings"
-        android:title="הגדרות"
+        android:title="Settings"
         app:showAsAction="never" />
 </menu>

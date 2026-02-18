@@ -38,8 +38,8 @@ public class MusicService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel();
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("סודוקו")
-                    .setContentText("המוזיקה פועלת ברקע")
+                    .setContentTitle(getString(R.string.music_service_title))
+                    .setContentText(getString(R.string.music_service_desc))
                     .setSmallIcon(android.R.drawable.ic_media_play)
                     .setOngoing(true)
                     .build();

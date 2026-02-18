@@ -16,13 +16,8 @@ import java.util.Random;
 public class SplashActivity extends AppCompatActivity {
     TextView splash_tvGameTitle;
     TextView splash_tvMotivationSentence;
-    String[] motivationSentences={
-        "כל מספר במקום הנכון מקרב אותך לניצחון",
-                "אל תוותר – פתרון הסודוקו מחכה לך",
-                "ככל שתתרגל יותר, תהפוך למאסטר של סודוקו",
-                "תשקיע מחשבה ותהנה מהאתגר"
-    };
-    final int Splash_DURATION = 2000;
+    private static final int SPLASH_DURATION = 2000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +31,16 @@ public class SplashActivity extends AppCompatActivity {
         splash_tvGameTitle = findViewById(R.id.splash_tvGameTitle);
         splash_tvMotivationSentence = findViewById(R.id.splash_tvMotivationSentence);
 
+        int[] motivationResIds = {
+                R.string.motivation_1,
+                R.string.motivation_2,
+                R.string.motivation_3,
+                R.string.motivation_4
+        };
+
         Random random = new Random();
-        int index = random.nextInt(motivationSentences.length);
-        splash_tvMotivationSentence.setText(motivationSentences[index]);
+        int index = random.nextInt(motivationResIds.length);
+        splash_tvMotivationSentence.setText(getString(motivationResIds[index]));
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -47,6 +49,6 @@ public class SplashActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        }, Splash_DURATION);
+        }, SPLASH_DURATION);
     }
 }

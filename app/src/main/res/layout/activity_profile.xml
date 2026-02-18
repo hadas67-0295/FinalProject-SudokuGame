@@ -21,7 +21,7 @@
         android:id="@+id/profile_tvUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="שם משתמש"
+        android:text="Username"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,7 +41,7 @@
             android:id="@+id/profile_btnEasy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="קלה"
+            android:text="Easy"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/profile_btnMedium"
             app:layout_constraintTop_toTopOf="parent"
@@ -52,7 +52,7 @@
             android:id="@+id/profile_btnMedium"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="בינוני"
+            android:text="Medium"
             app:layout_constraintStart_toEndOf="@id/profile_btnEasy"
             app:layout_constraintEnd_toStartOf="@id/profile_btnHard"
             app:layout_constraintTop_toTopOf="parent"
@@ -63,7 +63,7 @@
             android:id="@+id/profile_btnHard"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="קשה"
+            android:text="Hard"
             app:layout_constraintStart_toEndOf="@id/profile_btnMedium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -87,42 +87,42 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="כמות משחקים: 0" />
+            android:text="Games Played: 0" />
 
         <TextView
             android:id="@+id/profile_tvGameWins"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="ניצחונות: 0" />
+            android:text="Wins: 0" />
 
         <TextView
             android:id="@+id/profile_tvGameLosses"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="הפסדים: 0" />
+            android:text="Losses: 0" />
 
         <TextView
             android:id="@+id/profile_tvGameBestTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="זמן טוב ביותר: -" />
+            android:text="Best Time: -" />
 
         <TextView
             android:id="@+id/profile_tvGameBestWinsStreak"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="רצף ניצחונות טוב ביותר: 0" />
+            android:text="Best Win Streak: 0" />
 
         <TextView
             android:id="@+id/profile_tvGamePerfectWins"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
-            android:text="ניצחונות מושלמים: 0" />
+            android:text="Perfect Wins: 0" />
 
     </LinearLayout>
 

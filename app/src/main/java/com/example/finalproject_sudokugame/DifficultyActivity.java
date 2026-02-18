@@ -16,6 +16,7 @@ public class DifficultyActivity extends AppCompatActivity {
     Button difficulty_btnMedium;
     Button difficulty_btnHard;
     Button difficulty_btnReturnHome;
+    private boolean isStartingGame = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,9 +28,9 @@ public class DifficultyActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        difficulty_btnEasy = findViewById(R.id.profile_btnEasy);
-        difficulty_btnMedium = findViewById(R.id.profile_btnMedium);
-        difficulty_btnHard = findViewById(R.id.profile_btnHard);
+        difficulty_btnEasy = findViewById(R.id.difficulty_btnEasy);
+        difficulty_btnMedium = findViewById(R.id.difficulty_btnMedium);
+        difficulty_btnHard = findViewById(R.id.difficulty_btnHard);
         difficulty_btnReturnHome = findViewById(R.id.difficulty_btnReturnHome);
 
         difficulty_btnEasy.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +65,9 @@ public class DifficultyActivity extends AppCompatActivity {
     }
 
     private void startGameWithDifficulty(String difficulty) {
+        if (isStartingGame) return;
+        isStartingGame = true;
+
         Intent intent = new Intent(DifficultyActivity.this, GameActivity.class);
         intent.putExtra("difficulty_level", difficulty);
         startActivity(intent);

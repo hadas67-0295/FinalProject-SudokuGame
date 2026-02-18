@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.Gravity;
@@ -28,14 +29,24 @@ public class GameActivity extends AppCompatActivity {
 
     private GameManager board;
     private GridLayout gridLayout;
-    private TextView timerTextView, game_tvResponse;
-    Button game_btnReturnHome;
+    private TextView timerTextView;
+    private TextView game_tvResponse;
+    private TextView game_tvBoardSource;
+    private Button game_btnReturnHome;
+    private Button game_btnHint;
+    private TextView game_tvStrikes;
+
     private static final int MAX_STRIKES = 3;
+    private static final int MESSAGE_DELAY_MS = 3000;
+    private static final int POST_DELAY_MS = 1000;
+    final long ANIMATION_DELAY_BASE = 100L;
+    private static final int VIBRATION_DURATION_MS = 200;
+
     private int strikes = 0;
     private boolean isGameOver = false;
-    private TextView game_tvStrikes;
     private String username;
     private String currentDifficulty;
+    private boolean isAiRequestInProgress = false;
 
     private enum HighlightType {
         SELECTED,
@@ -44,7 +55,7 @@ public class GameActivity extends AppCompatActivity {
         NONE
     }
 
-    Handler handler = new Handler();
+    private Handler handler = new Handler(Looper.getMainLooper());
     long startTime;
 
     @Override
@@ -53,22 +64,24 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         game_btnReturnHome = findViewById(R.id.game_btnReturnHome);
+        game_btnHint = findViewById(R.id.game_btnHint);
         gridLayout = findViewById(R.id.game_gridLayout);
         timerTextView = findViewById(R.id.game_tvTimer);
         game_tvResponse = findViewById(R.id.game_tvResponse);
         game_tvStrikes = findViewById(R.id.game_tvStrikes);
-        updateStrikesUI();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
         SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
         username = userPrefs.getString("username", "");
 
         currentDifficulty = getIntent().getStringExtra("difficulty_level");
+        if (currentDifficulty == null) currentDifficulty = "medium";
         boolean resumeGame = getIntent().getBooleanExtra("resume_game", false);
 
         if (resumeGame) {
             loadSavedGame();
-        } else {
-            initializeGameWithAi();
         }
 
         game_btnReturnHome.setOnClickListener(new View.OnClickListener() {
@@ -91,11 +104,18 @@ public class GameActivity extends AppCompatActivity {
                 }
             });
         }
+
+        if (!resumeGame && savedInstanceState == null) {
+            initializeGameWithAi();
+        }
     }
 
     private void initializeGameWithAi() {
+        if (isAiRequestInProgress) return;
+        isAiRequestInProgress = true;
+
         ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("מייצר לוח עם AI...");
+        progressDialog.setMessage(getString(R.string.ai_loading));
         progressDialog.setCancelable(false);
         progressDialog.show();
 
@@ -105,31 +125,39 @@ public class GameActivity extends AppCompatActivity {
         } else if (currentDifficulty.equalsIgnoreCase("medium")) {
             emptyCells = 40;
         } else {
-            emptyCells = 55;
+            emptyCells = 50;
         }
 
-        SudokuAiService aiService = new SudokuAiService(getString(R.string.google_api_key));
+        SudokuAiService aiService = SudokuAiService.getInstance(BuildConfig.GOOGLE_API_KEY);
         aiService.generateSudoku(emptyCells, new SudokuAiService.SudokuCallback() {
             @Override
             public void onSuccess(int[][] puzzle, int[][] solution) {
+                isAiRequestInProgress = false;
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     progressDialog.dismiss();
                     board = new GameManager(puzzle, solution);
                     startTime = System.currentTimeMillis();
-                    handler.postDelayed(updateTimerRunnable, 1000);
+                    handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
+                    showBoardSource(true);
                     drawBoard();
                 });
             }
 
             @Override
             public void onError(String error) {
+                isAiRequestInProgress = false;
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     progressDialog.dismiss();
-                    Toast.makeText(GameActivity.this, "AI Error: " + error + ". Falling back to local generation.", Toast.LENGTH_LONG).show();
+                    String fallbackMsg = getString(R.string.fallback_message, error);
+                    Toast.makeText(GameActivity.this, fallbackMsg, Toast.LENGTH_LONG).show();
 
-                    board = new GameManager(currentDifficulty, true);
+                    SudokuPuzzlePool.PuzzlePair pair = SudokuPuzzlePool.getRandomPuzzle(currentDifficulty);
+                    board = new GameManager(pair.puzzle, pair.solution);
                     startTime = System.currentTimeMillis();
-                    handler.postDelayed(updateTimerRunnable, 1000);
+                    handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
+                    showBoardSource(false);
                     drawBoard();
                 });
             }
@@ -143,14 +171,13 @@ public class GameActivity extends AppCompatActivity {
             long seconds = (elapsedMillis / 1000) % 60;
             long minutes = (elapsedMillis / 1000) / 60;
 
-            timerTextView.setText(String.format("זמן: %02d:%02d", minutes, seconds));
-
-            handler.postDelayed(this, 1000);
+            timerTextView.setText(String.format(getString(R.string.timer_format), minutes, seconds));
+            handler.postDelayed(this, POST_DELAY_MS);
         }
     };
 
     private void drawBoard() {
-        if (isGameOver)
+        if (isGameOver || board == null)
             return;
         gridLayout.removeAllViews();
         gridLayout.setColumnCount(9);
@@ -291,11 +318,11 @@ public class GameActivity extends AppCompatActivity {
     private void showEndDialog(boolean isWin) {
         if (isFinishing() || isDestroyed()) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(isWin ? "כל הכבוד! 🎉" : "המשחק הסתיים");
-        builder.setMessage(isWin ? "פתרת את הסודוקו בהצלחה!\nתחזור למסך הבית."
-                : "הגעת ל־3 פסילות.\nהמשחק יסתיים ותחזור למסך הבית.");
+        builder.setTitle(isWin ? getString(R.string.victory_title) : getString(R.string.game_over_title));
+        builder.setMessage(isWin ? getString(R.string.victory_message)
+                : getString(R.string.game_over_message));
         builder.setCancelable(false);
-        builder.setPositiveButton("אישור", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
@@ -311,7 +338,7 @@ public class GameActivity extends AppCompatActivity {
             View cell = gridLayout.getChildAt(i);
             int row = i / cols;
             int col = i % cols;
-            long delay = (row + col) * 100L;
+            long delay = (row + col) * ANIMATION_DELAY_BASE;
 
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -354,7 +381,7 @@ public class GameActivity extends AppCompatActivity {
         if (isGameOver) return;
 
         if (board.getSelectedRow() == -1 || board.getSelectedCol() == -1) {
-            showMessage("בחרי תא לפני הכנסת מספר!");
+            showMessage(getString(R.string.select_cell_message));
             return;
         }
 
@@ -368,7 +395,7 @@ public class GameActivity extends AppCompatActivity {
             }
         } else {
             addStrike();
-            showMessage("מספר לא חוקי!");
+            showMessage(getString(R.string.invalid_number));
         }
     }
 
@@ -442,11 +469,18 @@ public class GameActivity extends AppCompatActivity {
             public void run() {
                 game_tvResponse.setVisibility(View.GONE);
             }
-        }, 3000);
+        }, MESSAGE_DELAY_MS);
+    }
+
+    private void showBoardSource(boolean isAi) {
+        if (game_tvBoardSource != null) {
+            game_tvBoardSource.setText(isAi ? getString(R.string.board_source_ai) : getString(R.string.board_source_pool));
+            game_tvBoardSource.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateStrikesUI() {
-        game_tvStrikes.setText(strikes + "/" + MAX_STRIKES);
+        game_tvStrikes.setText(getString(R.string.strikes_format, strikes, MAX_STRIKES));
     }
 
     private void addStrike() {
@@ -476,12 +510,12 @@ public class GameActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(
                         VibrationEffect.createOneShot(
-                                200,
+                                VIBRATION_DURATION_MS,
                                 VibrationEffect.DEFAULT_AMPLITUDE
                         )
                 );
             } else {
-                vibrator.vibrate(200);
+                vibrator.vibrate(VIBRATION_DURATION_MS);
             }
         }
     }
@@ -527,10 +561,14 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private long parseTime(String time) {
-        String[] parts = time.split(":");
-        int minutes = Integer.parseInt(parts[0]);
-        int seconds = Integer.parseInt(parts[1]);
-        return (minutes * 60 + seconds) * 1000L;
+        try {
+            String[] parts = time.split(":");
+            int minutes = Integer.parseInt(parts[0]);
+            int seconds = Integer.parseInt(parts[1]);
+            return (minutes * 60 + seconds) * 1000L;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private String formatTime(long elapsedMillis) {
@@ -550,7 +588,7 @@ public class GameActivity extends AppCompatActivity {
         }
         String result = sb.toString();
         if (result.length() != 81) {
-            throw new IllegalStateException("Board state לא חוקי!");
+            throw new IllegalStateException("Invalid board state length!");
         }
         return result;
     }
@@ -615,11 +653,19 @@ public class GameActivity extends AppCompatActivity {
 
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isGameOver && board != null) {
+            handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(updateTimerRunnable);
 
-        if (!isGameOver) {
+        if (!isGameOver && board != null) {
             saveCurrentGame(true);
         }
     }
@@ -647,7 +693,7 @@ public class GameActivity extends AppCompatActivity {
                                 if (savedInitial != null && !savedInitial.isEmpty() && savedInitial.length() == 81 && savedBoard.length() == 81) {
                                     board = new GameManager(savedBoard, savedInitial, savedSolution);
                                 } else if (savedBoard.length() == 81) {
-                                    board = new GameManager(savedBoard, false);
+                                    board = new GameManager(savedBoard);
                                 } else {
                                     throw new IllegalStateException("Invalid board length");
                                 }
@@ -660,7 +706,7 @@ public class GameActivity extends AppCompatActivity {
                                 handler.postDelayed(updateTimerRunnable, 1000);
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Toast.makeText(GameActivity.this, "שגיאה בטעינת נתונים: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(GameActivity.this, "Error loading data: " + e.getMessage(), Toast.LENGTH_LONG).show();
                                 SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
                                 gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
 
@@ -686,7 +732,7 @@ public class GameActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            android.widget.Toast.makeText(GameActivity.this, "שגיאה בטעינת המשחק", android.widget.Toast.LENGTH_SHORT).show();
+                            android.widget.Toast.makeText(GameActivity.this, "Error loading game", android.widget.Toast.LENGTH_SHORT).show();
                             SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
                             gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
                             finish();
