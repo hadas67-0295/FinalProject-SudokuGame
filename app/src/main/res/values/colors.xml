@@ -4,6 +4,26 @@
     <color name="white">#FFFFFFFF</color>
     <color name="profile_button_default">#E0E0E0</color>
 
+    <!-- Premium Color Palette -->
+    <color name="primary">#303F9F</color>
+    <color name="primary_dark">#1A237E</color>
+    <color name="primary_light">#7986CB</color>
+    <color name="accent">#FFB300</color>
+    <color name="surface">#F5F5F5</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#1A237E</color>
+    <color name="gradient_end">#3949AB</color>
+    <color name="gradient_button_start">#3F51B5</color>
+    <color name="gradient_button_end">#1A237E</color>
+    <color name="home_gradient_start">#F5F5FF</color>
+    <color name="home_gradient_end">#E8EAF6</color>
+
+    <!-- Sudoku Cell Colors -->
     <color name="cell_default">#FFFFFFFF</color>
     <color name="cell_selected">#90CAF9</color>
     <color name="cell_related">#FFF8E1</color>

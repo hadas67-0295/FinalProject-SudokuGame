@@ -6,165 +6,240 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
-    android:padding="16dp">
+    android:background="@color/surface"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/game_tvTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
-        android:textSize="20sp"
+        android:textSize="17sp"
         android:textStyle="bold"
+        android:textColor="@color/primary_dark"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"/>
+
+    <TextView
+        android:id="@+id/game_tvStrikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0/3"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"/>
 
     <TextView
         android:id="@+id/game_tvBoardSource"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:textStyle="italic"
+        android:textColor="@color/text_secondary"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/game_tvTimer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="4dp"/>
-
+        app:layout_constraintStart_toStartOf="parent" />
 
     <GridLayout
         android:id="@+id/game_gridLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:columnCount="9"
         android:rowCount="9"
         app:layout_constraintBottom_toTopOf="@id/game_btnHint"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/game_tvBoardSource"
-        app:layout_constraintVertical_bias="0.088" />
+        app:layout_constraintVertical_bias="0.02" />
 
     <Button
         android:id="@+id/game_btnHint"
+        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="Hint"
+        android:layout_marginEnd="300dp"
+        android:layout_marginBottom="36dp"
+        android:text="💡 Hint"
+        android:textSize="14sp"
+        app:cornerRadius="12dp"
         app:layout_constraintBottom_toTopOf="@id/game_btnReturnHome"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/game_btnReturnHome"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="52dp"
-        android:text="Back"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="100dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="292dp"
+        android:layout_marginBottom="124dp"
+        android:text="← Back"
+        android:textColor="@color/primary"
+        android:textSize="14sp"
+        app:cornerRadius="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:strokeColor="@color/primary_light" />
 
     <LinearLayout
         android:id="@+id/numbers_container"
-        android:layout_width="274dp"
-        android:layout_height="151dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="103dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/game_btnHint"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="4dp"
             android:orientation="horizontal"
             android:weightSum="5">
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn1"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="1" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="1"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn2"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="2" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="2"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn3"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="3" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="3"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn4"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="4" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="4"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn5"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="5" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="5"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
             android:weightSum="4">
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn6"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="6" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="6"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn7"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="7" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="7"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn8"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="8" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="8"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
 
-            <com.google.android.material.chip.Chip
+            <Button
                 android:id="@+id/game_btn9"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="0dp"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
                 android:layout_weight="1"
-                android:text="9" />
+                android:background="@drawable/bg_button_outlined_rounded"
+                android:minWidth="0dp"
+                android:text="9"
+                android:textColor="@color/primary_dark"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:backgroundTint="@null" />
         </LinearLayout>
     </LinearLayout>
 
@@ -172,21 +247,11 @@
         android:id="@+id/game_tvResponse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
         app:layout_constraintBottom_toTopOf="@+id/numbers_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/game_gridLayout" />
-
-    <TextView
-        android:id="@+id/game_tvStrikes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/game_gridLayout"
-        app:layout_constraintEnd_toStartOf="@+id/game_tvTimer"
-        app:layout_constraintHorizontal_bias="0.051"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.51" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

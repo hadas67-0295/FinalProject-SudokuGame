@@ -1,152 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/surface">
+
+    <View
+        android:id="@+id/settings_header_bg"
+        android:layout_width="0dp"
+        android:layout_height="140dp"
+        android:background="@drawable/bg_button_gradient"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:title="Settings"
-        android:titleTextColor="@android:color/white"
+        android:background="@android:color/transparent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/Theme.FinalProjectSudokuGame.Popup"
         app:navigationContentDescription="Go Back"
-        app:titleCentered="true" />
+        app:titleCentered="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <LinearLayout
-            android:padding="16dp"
-            android:orientation="vertical"
+    <TextView
+        android:id="@+id/settings_title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/on_primary"
+        android:letterSpacing="0.02"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_toolbar"
+        android:layout_marginTop="8dp" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="-20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="24dp"
+        app:layout_constraintTop_toBottomOf="@id/settings_header_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
-
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="12dp">
+                android:padding="24dp"
+                android:orientation="vertical">
 
                 <LinearLayout
-                    android:padding="20dp"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⚙️"
+                        android:textSize="24sp"
+                        android:layout_marginEnd="12dp" />
 
                     <TextView
                         android:id="@+id/settings_tvAccount"
-                        android:text="Account Settings"
+                        android:text="Account"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <Button
-                        android:id="@+id/settings_btnAccount"
+                        android:textColor="@color/primary_dark"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Open Account Settings" />
-
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
+                <Button
+                    android:id="@+id/settings_btnAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Open Account Settings"
+                    android:textSize="14sp"
+                    android:textColor="@color/on_primary"
+                    android:textAllCaps="false"
+                    android:background="@drawable/bg_button_gradient"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="24dp" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="12dp">
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginBottom="24dp" />
 
                 <LinearLayout
-                    android:padding="20dp"
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🎵"
+                        android:textSize="24sp"
+                        android:layout_marginEnd="12dp" />
 
                     <TextView
                         android:id="@+id/settings_tvMusic"
-                        android:text="Music Settings"
+                        android:text="Music"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <Button
-                        android:id="@+id/settings_btnMusic"
+                        android:textColor="@color/primary_dark"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Open Music Settings" />
-
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
+                <Button
+                    android:id="@+id/settings_btnMusic"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Manage Music"
+                    android:textSize="14sp"
+                    android:textColor="@color/on_primary"
+                    android:textAllCaps="false"
+                    android:background="@drawable/bg_button_gradient"
+                    app:backgroundTint="@null"
+                    android:layout_marginBottom="24dp" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="12dp">
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginBottom="24dp" />
 
                 <LinearLayout
-                    android:padding="20dp"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
 
-                    <TextView
-                        android:id="@+id/settings_tvNotification"
-                        android:text="Notifications"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                    <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
-                    <Switch
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🔔"
+                            android:textSize="24sp"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:id="@+id/settings_tvNotification"
+                            android:text="Notifications"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary_dark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/settings_switchNotifications"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Enable/Disable Notifications" />
-
+                        android:text="Enable Notifications"
+                        android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardElevation="4dp"
-                app:cardCornerRadius="12dp">
 
                 <LinearLayout
-                    android:padding="20dp"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:id="@+id/settings_tvVibration"
-                        android:text="Vibration"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
+                    <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <Switch
-                        android:id="@+id/settings_switchVibration"
-                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Enable/Disable Vibration" />
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📳"
+                            android:textSize="24sp"
+                            android:layout_marginEnd="12dp" />
+
+                        <TextView
+                            android:id="@+id/settings_tvVibration"
+                            android:text="Vibration"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/primary_dark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/settings_switchVibration"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Enable Vibration feedback"
+                        android:textColor="@color/text_secondary" />
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
+            </LinearLayout>
+        </ScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
