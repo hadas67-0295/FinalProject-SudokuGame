@@ -21,9 +21,12 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.app.ProgressDialog;
-
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.finalproject_sudokugame.GameVisualsManager.HighlightType;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -39,24 +42,17 @@ public class GameActivity extends AppCompatActivity {
     private static final int MAX_STRIKES = 3;
     private static final int MESSAGE_DELAY_MS = 3000;
     private static final int POST_DELAY_MS = 1000;
-    final long ANIMATION_DELAY_BASE = 100L;
-    private static final int VIBRATION_DURATION_MS = 200;
+    private SudokuStatsManager statsManager;
+    private AiBoardManager aiBoardManager;
+    private GameVisualsManager visualsManager;
 
     private int strikes = 0;
     private boolean isGameOver = false;
     private String username;
     private String currentDifficulty;
-    private boolean isAiRequestInProgress = false;
-
-    private enum HighlightType {
-        SELECTED,
-        SAME_NUMBER,
-        RELATED,
-        NONE
-    }
 
     private Handler handler = new Handler(Looper.getMainLooper());
-    long startTime;
+    private long startTime = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +64,7 @@ public class GameActivity extends AppCompatActivity {
         gridLayout = findViewById(R.id.game_gridLayout);
         timerTextView = findViewById(R.id.game_tvTimer);
         game_tvResponse = findViewById(R.id.game_tvResponse);
+        game_tvBoardSource = findViewById(R.id.game_tvBoardSource);
         game_tvStrikes = findViewById(R.id.game_tvStrikes);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -76,12 +73,19 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences userPrefs = getSharedPreferences("sudoku_user", MODE_PRIVATE);
         username = userPrefs.getString("username", "");
 
+        statsManager = new SudokuStatsManager(this, username);
+        aiBoardManager = new AiBoardManager(this);
+        visualsManager = new GameVisualsManager(this);
+
         currentDifficulty = getIntent().getStringExtra("difficulty_level");
         if (currentDifficulty == null) currentDifficulty = "medium";
         boolean resumeGame = getIntent().getBooleanExtra("resume_game", false);
 
         if (resumeGame) {
-            loadSavedGame();
+            Toast.makeText(this, "Resume feature disabled", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            updateStrikesUI();
         }
 
         game_btnReturnHome.setOnClickListener(new View.OnClickListener() {
@@ -92,6 +96,12 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
+        game_btnHint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                useHint();
+            }
+        });
 
         for (int num = 1; num <= 9; num++) {
             int buttonId = getResources().getIdentifier("game_btn" + num, "id", getPackageName());
@@ -111,57 +121,44 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void initializeGameWithAi() {
-        if (isAiRequestInProgress) return;
-        isAiRequestInProgress = true;
-
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.ai_loading));
-        progressDialog.setCancelable(false);
-        progressDialog.show();
-
-        int emptyCells;
-        if (currentDifficulty.equalsIgnoreCase("easy")) {
-            emptyCells = 20;
-        } else if (currentDifficulty.equalsIgnoreCase("medium")) {
-            emptyCells = 40;
-        } else {
-            emptyCells = 50;
-        }
-
-        SudokuAiService aiService = SudokuAiService.getInstance(BuildConfig.GOOGLE_API_KEY);
-        aiService.generateSudoku(emptyCells, new SudokuAiService.SudokuCallback() {
+        aiBoardManager.fetchAiBoard(currentDifficulty, new AiBoardManager.AiBoardCallback() {
             @Override
             public void onSuccess(int[][] puzzle, int[][] solution) {
-                isAiRequestInProgress = false;
-                runOnUiThread(() -> {
-                    if (isFinishing() || isDestroyed()) return;
-                    progressDialog.dismiss();
-                    board = new GameManager(puzzle, solution);
-                    startTime = System.currentTimeMillis();
-                    handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
-                    showBoardSource(true);
-                    drawBoard();
-                });
+                board = new GameManager(puzzle, solution);
+                onGameInitialized(true);
             }
 
             @Override
             public void onError(String error) {
-                isAiRequestInProgress = false;
-                runOnUiThread(() -> {
-                    if (isFinishing() || isDestroyed()) return;
-                    progressDialog.dismiss();
-                    String fallbackMsg = getString(R.string.fallback_message, error);
-                    Toast.makeText(GameActivity.this, fallbackMsg, Toast.LENGTH_LONG).show();
-
-                    SudokuPuzzlePool.PuzzlePair pair = SudokuPuzzlePool.getRandomPuzzle(currentDifficulty);
-                    board = new GameManager(pair.puzzle, pair.solution);
-                    startTime = System.currentTimeMillis();
-                    handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
-                    showBoardSource(false);
-                    drawBoard();
-                });
+                fallbackToPool(error);
             }
         });
+    }
+
+    private void fallbackToPool(String error) {
+        String fallbackMsg = getString(R.string.fallback_message, error);
+        Toast.makeText(this, fallbackMsg, Toast.LENGTH_LONG).show();
+
+        SudokuPuzzlePool.PuzzlePair pair = SudokuPuzzlePool.getRandomPuzzle(currentDifficulty);
+        board = new GameManager(pair.puzzle, pair.solution);
+
+        onGameInitialized(false);
+    }
+
+    private void onGameInitialized(boolean fromAi) {
+        if (isFinishing() || isDestroyed()) return;
+
+        strikes = 0;
+        updateStrikesUI();
+        startTime = System.currentTimeMillis();
+        handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
+        showBoardSource(fromAi);
+        drawBoard();
+    }
+
+    private void showBoardSource(boolean fromAi) {
+        game_tvBoardSource.setText(fromAi ? R.string.board_source_ai : R.string.board_source_pool);
+        game_tvBoardSource.setVisibility(View.VISIBLE);
     }
 
     private Runnable updateTimerRunnable = new Runnable() {
@@ -195,9 +192,10 @@ public class GameActivity extends AppCompatActivity {
                 cell.setTextSize(24);
                 cell.setGravity(Gravity.CENTER);
 
-                HighlightType highlightType = getHighlightType(row, col, selectedRow, selectedCol, selectedValue);
+                int cellValue = board.getCell(row, col);
+                HighlightType highlightType = visualsManager.getHighlightType(row, col, selectedRow, selectedCol, selectedValue, cellValue);
 
-                Drawable background = createCellBackground(row, col, highlightType);
+                Drawable background = visualsManager.createCellBackground(row, col, highlightType);
                 cell.setBackground(background);
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -208,12 +206,10 @@ public class GameActivity extends AppCompatActivity {
                 params.setMargins(0, 0, 0, 0);
                 cell.setLayoutParams(params);
 
-                int value = board.getCell(row, col);
-                cell.setText(value == 0 ? "" : String.valueOf(value));
+                cell.setText(cellValue == 0 ? "" : String.valueOf(cellValue));
 
-                if (value != 0) {
+                if (cellValue != 0) {
                     cell.setEnabled(false);
-
                     if (board.isOriginalCell(row, col)) {
                         cell.setTextColor(Color.BLACK);
                     } else {
@@ -223,12 +219,9 @@ public class GameActivity extends AppCompatActivity {
                     cell.setText("");
                     int finalRow = row;
                     int finalCol = col;
-                    cell.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            board.selectCell(finalRow, finalCol);
-                            GameActivity.this.drawBoard();
-                        }
+                    cell.setOnClickListener(v -> {
+                        board.selectCell(finalRow, finalCol);
+                        drawBoard();
                     });
                 }
                 gridLayout.addView(cell);
@@ -236,81 +229,23 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private HighlightType getHighlightType(int row, int col, int selectedRow, int selectedCol, int selectedValue) {
-        if (selectedRow < 0 || selectedCol < 0) {
-            return HighlightType.NONE;
-        }
-
-        if (row == selectedRow && col == selectedCol) {
-            return HighlightType.SELECTED;
-        }
-
-        int cellValue = board.getCell(row, col);
-        if (cellValue != 0 && selectedValue != 0 && cellValue == selectedValue) {
-            return HighlightType.SAME_NUMBER;
-        }
-
-        if (row == selectedRow || col == selectedCol) {
-            return HighlightType.RELATED;
-        }
-
-        int boxRowStart = (selectedRow / 3) * 3;
-        int boxColStart = (selectedCol / 3) * 3;
-        if (row >= boxRowStart && row < boxRowStart + 3 &&
-                col >= boxColStart && col < boxColStart + 3) {
-            return HighlightType.RELATED;
-        }
-
-        return HighlightType.NONE;
-    }
-
     private void endGame(boolean isWin, long elapsedMillis, boolean perfect) {
         isGameOver = true;
         handler.removeCallbacks(updateTimerRunnable);
-        saveStats(isWin, elapsedMillis, perfect);
-        saveCurrentGame(false);
-
-        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-        gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
+        statsManager.saveStats(isWin, currentDifficulty, elapsedMillis, perfect, strikes);
 
         if (isWin) {
-            animateVictory();
-            Handler endHandler = new Handler();
-            endHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    showEndDialog(isWin);
-                }
-            }, 2500);
+            visualsManager.animateVictory(gridLayout);
+            handler.postDelayed(() -> showEndDialog(true), 2500);
         } else {
             for (int i = 0; i < 25; i++) {
                 int delay = i * 200;
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        gridLayout.setTranslationX(20);
-                    }
-                }, delay);
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        gridLayout.setTranslationX(-20);
-                    }
-                }, delay + 100);
+                handler.postDelayed(() -> gridLayout.setTranslationX(20), delay);
+                handler.postDelayed(() -> gridLayout.setTranslationX(-20), delay + 100);
             }
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    gridLayout.setTranslationX(0);
-                }
-            }, 2500);
-
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    showEndDialog(isWin);
-                }
+            handler.postDelayed(() -> {
+                gridLayout.setTranslationX(0);
+                showEndDialog(false);
             }, 5000);
         }
     }
@@ -331,57 +266,27 @@ public class GameActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void animateVictory() {
-        int rows = 9;
-        int cols = 9;
-        for (int i = 0; i < gridLayout.getChildCount(); i++) {
-            View cell = gridLayout.getChildAt(i);
-            int row = i / cols;
-            int col = i % cols;
-            long delay = (row + col) * ANIMATION_DELAY_BASE;
 
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    startManualJump(cell);
-                }
-            }, delay);
-        }
-    }
 
-    private void startManualJump(View view) {
-        final Handler jumpHandler = new Handler();
-        final int jumpHeight = 30;
-        final int steps = 10;
-        final int delayPerStep = 10;
-        for (int i = 1; i <= steps; i++) {
-            final int step = i;
-            jumpHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    float y = -(jumpHeight * ((float) step / steps));
-                    view.setTranslationY(y);
-                }
-            }, i * delayPerStep);
-        }
-        for (int i = 1; i <= steps; i++) {
-            final int step = i;
-            jumpHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    float y = -jumpHeight + (jumpHeight * ((float) step / steps));
-                    view.setTranslationY(y);
-                }
-            }, (steps * delayPerStep) + (i * delayPerStep));
-        }
-    }
+
 
     private void placeNumber(int number) {
         if (isGameOver) return;
 
-        if (board.getSelectedRow() == -1 || board.getSelectedCol() == -1) {
+        int selectedRow = board.getSelectedRow();
+        int selectedCol = board.getSelectedCol();
+
+        if (selectedRow == -1 || selectedCol == -1) {
             showMessage(getString(R.string.select_cell_message));
+            return;
+        }
+
+        String reason = board.getInvalidMoveReason(selectedRow, selectedCol, number);
+        if (reason != null) {
+            addStrike();
+            if (reason.equals("Duplicate in row")) showMessage(getString(R.string.duplicate_row));
+            else if (reason.equals("Duplicate in column")) showMessage(getString(R.string.duplicate_col));
+            else if (reason.equals("Duplicate in 3x3 block")) showMessage(getString(R.string.duplicate_block));
             return;
         }
 
@@ -399,6 +304,35 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    private void useHint() {
+        if (isGameOver || board == null) return;
+
+        ArrayList<int[]> emptyCells = new ArrayList<>();
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (board.getCell(row, col) == 0) {
+                    emptyCells.add(new int[]{row, col});
+                }
+            }
+        }
+
+        if (emptyCells.isEmpty()) return;
+
+        Random random = new Random();
+        int[] cell = emptyCells.get(random.nextInt(emptyCells.size()));
+        int row = cell[0];
+        int col = cell[1];
+        int correctValue = board.getSolutionCell(row, col);
+
+        board.setCell(row, col, correctValue);
+        drawBoard();
+
+        if (board.isComplete()) {
+            long elapsedMillis = System.currentTimeMillis() - startTime;
+            boolean perfect = strikes == 0;
+            endGame(true, elapsedMillis, perfect);
+        }
+    }
 
     @Override
     protected void onDestroy() {
@@ -406,77 +340,11 @@ public class GameActivity extends AppCompatActivity {
         handler.removeCallbacks(updateTimerRunnable);
     }
 
-    private Drawable createCellBackground(int row, int col, HighlightType highlightType) {
-        float density = getResources().getDisplayMetrics().density;
-
-        int thinBorder = (int) (1 * density);
-        int thickBorder = (int) (3 * density);
-
-        int leftWidth = (col == 8) ? thickBorder : thinBorder;
-        int topWidth = (row == 0) ? thickBorder : thinBorder;
-
-        int rightWidth = (col % 3 == 0) ? thickBorder : thinBorder;
-        int bottomWidth = ((row + 1) % 3 == 0) ? thickBorder : thinBorder;
-
-        GradientDrawable leftBorder = new GradientDrawable();
-        leftBorder.setColor(Color.BLACK);
-
-        GradientDrawable topBorder = new GradientDrawable();
-        topBorder.setColor(Color.BLACK);
-
-        GradientDrawable rightBorder = new GradientDrawable();
-        rightBorder.setColor(Color.BLACK);
-
-        GradientDrawable bottomBorder = new GradientDrawable();
-        bottomBorder.setColor(Color.BLACK);
-
-        int backgroundColor;
-        switch (highlightType) {
-            case SELECTED:
-                backgroundColor = getResources().getColor(R.color.cell_selected, getTheme());
-                break;
-            case SAME_NUMBER:
-                backgroundColor = getResources().getColor(R.color.cell_same_number, getTheme());
-                break;
-            case RELATED:
-                backgroundColor = getResources().getColor(R.color.cell_related, getTheme());
-                break;
-            default:
-                backgroundColor = getResources().getColor(R.color.cell_default, getTheme());
-                break;
-        }
-        GradientDrawable center = new GradientDrawable();
-        center.setColor(backgroundColor);
-
-        Drawable[] layers = {leftBorder, topBorder, rightBorder, bottomBorder, center};
-        LayerDrawable layerDrawable = new LayerDrawable(layers);
-
-        layerDrawable.setLayerInset(0, 0, 0, 0, 0);
-        layerDrawable.setLayerInset(1, 0, 0, 0, 0);
-        layerDrawable.setLayerInset(2, 0, 0, 0, 0);
-        layerDrawable.setLayerInset(3, 0, 0, 0, 0);
-        layerDrawable.setLayerInset(4, leftWidth, topWidth, rightWidth, bottomWidth);
-
-        return layerDrawable;
-    }
-
     private void showMessage(String message) {
         game_tvResponse.setText(message);
         game_tvResponse.setVisibility(View.VISIBLE);
 
-        game_tvResponse.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                game_tvResponse.setVisibility(View.GONE);
-            }
-        }, MESSAGE_DELAY_MS);
-    }
-
-    private void showBoardSource(boolean isAi) {
-        if (game_tvBoardSource != null) {
-            game_tvBoardSource.setText(isAi ? getString(R.string.board_source_ai) : getString(R.string.board_source_pool));
-            game_tvBoardSource.setVisibility(View.VISIBLE);
-        }
+        game_tvResponse.postDelayed(() -> game_tvResponse.setVisibility(View.GONE), MESSAGE_DELAY_MS);
     }
 
     private void updateStrikesUI() {
@@ -486,7 +354,7 @@ public class GameActivity extends AppCompatActivity {
     private void addStrike() {
         strikes++;
         updateStrikesUI();
-        vibrateIfEnabled();
+        visualsManager.vibrateIfEnabled();
 
         if (strikes >= MAX_STRIKES) {
             long elapsedMillis = System.currentTimeMillis() - startTime;
@@ -494,168 +362,11 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    private String getUsernamePrefix() {
-        return username.isEmpty() ? "guest_" : username + "_";
-    }
-
-    private void vibrateIfEnabled() {
-        SharedPreferences prefs = getSharedPreferences("sudoku_settings", MODE_PRIVATE);
-        boolean vibrationEnabled = prefs.getBoolean("vibration_enabled", true);
-
-        if (!vibrationEnabled) return;
-
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(
-                        VibrationEffect.createOneShot(
-                                VIBRATION_DURATION_MS,
-                                VibrationEffect.DEFAULT_AMPLITUDE
-                        )
-                );
-            } else {
-                vibrator.vibrate(VIBRATION_DURATION_MS);
-            }
-        }
-    }
-
-    private void saveStats(boolean isWin, long elapsedMillis, boolean perfect) {
-        String level = getIntent().getStringExtra("difficulty_level");
-        SharedPreferences statsPrefs = getSharedPreferences("sudoku_stats", MODE_PRIVATE);
-        SharedPreferences.Editor editor = statsPrefs.edit();
-
-        String prefix = getUsernamePrefix();
-
-        int played = statsPrefs.getInt(prefix + level + "_played", 0) + 1;
-        editor.putInt(prefix + level + "_played", played);
-
-        if (isWin) {
-            int wins = statsPrefs.getInt(prefix + level + "_wins", 0) + 1;
-            editor.putInt(prefix + level + "_wins", wins);
-
-            int streak = statsPrefs.getInt(prefix + level + "_currentStreak", 0) + 1;
-            editor.putInt(prefix + level + "_currentStreak", streak);
-
-            int bestStreak = statsPrefs.getInt(prefix + level + "_bestStreak", 0);
-            if (streak > bestStreak) editor.putInt(prefix + level + "_bestStreak", streak);
-
-            if (perfect) {
-                int perfectWins = statsPrefs.getInt(prefix + level + "_perfectWins", 0) + 1;
-                editor.putInt(prefix + level + "_perfectWins", perfectWins);
-            }
-
-            String previousBest = statsPrefs.getString(prefix + level + "_bestTime", "--:--");
-            if (previousBest.equals("--:--") || elapsedMillis < parseTime(previousBest)) {
-                editor.putString(prefix + level + "_bestTime", formatTime(elapsedMillis));
-            }
-
-        } else {
-
-            int losses = statsPrefs.getInt(prefix + level + "_losses", 0) + 1;
-            editor.putInt(prefix + level + "_losses", losses);
-            editor.putInt(prefix + level + "_currentStreak", 0);
-        }
-
-        editor.apply();
-    }
-
-    private long parseTime(String time) {
-        try {
-            String[] parts = time.split(":");
-            int minutes = Integer.parseInt(parts[0]);
-            int seconds = Integer.parseInt(parts[1]);
-            return (minutes * 60 + seconds) * 1000L;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private String formatTime(long elapsedMillis) {
-        long seconds = (elapsedMillis / 1000) % 60;
-        long minutes = (elapsedMillis / 1000) / 60;
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    private String getBoardStateAsString() {
-        StringBuilder sb = new StringBuilder();
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                int value = board.getCell(row, col);
-                if (value < 0 || value > 9) value = 0;
-                sb.append(value);
-            }
-        }
-        String result = sb.toString();
-        if (result.length() != 81) {
-            throw new IllegalStateException("Invalid board state length!");
-        }
-        return result;
-    }
-
-    private void saveCurrentGame(boolean save) {
-        if (username.isEmpty()) return;
-
-        final String difficultyToSave = currentDifficulty;
-        final long timerToSave = System.currentTimeMillis() - startTime;
-        final int strikesToSave = strikes;
-        final String boardStateToSave;
-        final String initialBoardStateToSave;
-        final String solutionBoardToSave;
-
-        if (save) {
-            if (board == null) return;
-            try {
-                boardStateToSave = getBoardStateAsString();
-                initialBoardStateToSave = board.getOriginalBoardString();
-                solutionBoardToSave = board.getSolutionBoardString();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            boardStateToSave = "";
-            initialBoardStateToSave = "";
-            solutionBoardToSave = "";
-        }
-
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SavedGameDao dao = DataBase.getInstance(GameActivity.this).savedGameDao();
-                    if (!save) {
-                        dao.deleteSavedGameForUser(username);
-                    } else {
-                        dao.saveGame(new SavedGameEntity(
-                                difficultyToSave,
-                                timerToSave,
-                                strikesToSave,
-                                boardStateToSave,
-                                initialBoardStateToSave,
-                                solutionBoardToSave,
-                                username
-                        ));
-                        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                        gamePrefs.edit().putBoolean("hasSavedGame_" + username, true).apply();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    if (save) {
-                        SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                        gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
-                    }
-                }
-            }
-        });
-        thread.start();
-    }
-
-
     @Override
     protected void onResume() {
         super.onResume();
         if (!isGameOver && board != null) {
+            handler.removeCallbacks(updateTimerRunnable);
             handler.postDelayed(updateTimerRunnable, POST_DELAY_MS);
         }
     }
@@ -664,83 +375,5 @@ public class GameActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(updateTimerRunnable);
-
-        if (!isGameOver && board != null) {
-            saveCurrentGame(true);
-        }
-    }
-
-    private void loadSavedGame() {
-        gridLayout.setEnabled(false);
-        Thread loadThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SavedGameEntity savedGame = DataBase.getInstance(GameActivity.this)
-                        .savedGameDao()
-                        .getSavedGameForUser(username);
-
-                if (savedGame != null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                currentDifficulty = savedGame.getDifficultyLevel();
-
-                                String savedBoard = savedGame.getBoardState();
-                                String savedInitial = savedGame.getInitialBoardState();
-                                String savedSolution = savedGame.getSolutionBoard();
-
-                                if (savedInitial != null && !savedInitial.isEmpty() && savedInitial.length() == 81 && savedBoard.length() == 81) {
-                                    board = new GameManager(savedBoard, savedInitial, savedSolution);
-                                } else if (savedBoard.length() == 81) {
-                                    board = new GameManager(savedBoard);
-                                } else {
-                                    throw new IllegalStateException("Invalid board length");
-                                }
-
-                                strikes = savedGame.getMistakes();
-                                updateStrikesUI();
-                                startTime = System.currentTimeMillis() - savedGame.getTimer();
-                                drawBoard();
-                                gridLayout.setEnabled(true);
-                                handler.postDelayed(updateTimerRunnable, 1000);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Toast.makeText(GameActivity.this, "Error loading data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                                SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                                gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
-
-                                Thread deleteThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        DataBase.getInstance(GameActivity.this)
-                                                .savedGameDao()
-                                                .deleteSavedGameForUser(username);
-                                    }
-                                });
-                                deleteThread.start();
-                                handler.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        finish();
-                                    }
-                                }, 3500);
-                            }
-                        }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            android.widget.Toast.makeText(GameActivity.this, "Error loading game", android.widget.Toast.LENGTH_SHORT).show();
-                            SharedPreferences gamePrefs = getSharedPreferences("sudoku_game", MODE_PRIVATE);
-                            gamePrefs.edit().putBoolean("hasSavedGame_" + username, false).apply();
-                            finish();
-                        }
-                    });
-                }
-            }
-        });
-        loadThread.start();
     }
 }

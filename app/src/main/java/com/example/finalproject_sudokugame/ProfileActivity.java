@@ -68,6 +68,9 @@ public class ProfileActivity extends AppCompatActivity {
                 ViewCompat.getBackgroundTintList(profile_btnHard).getDefaultColor() :
                 ContextCompat.getColor(this,R.color.profile_button_default);
 
+        profile_toolbar = findViewById(R.id.profile_toolbar);
+        setSupportActionBar(profile_toolbar);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
@@ -97,22 +100,35 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
 
-        String username = userPrefs.getString("username", "");
-        String prefix = username.isEmpty() ? "guest_" : username + "_";
+        String username = userPrefs.getString("username", "guest");
+        if (username.isEmpty()) username = "guest";
 
-        int played = statsPrefs.getInt(prefix + level + "_played", 0);
-        int wins = statsPrefs.getInt(prefix + level + "_wins", 0);
-        int losses = statsPrefs.getInt(prefix + level + "_losses", 0);
-        String bestTime = statsPrefs.getString(prefix + level + "_bestTime", "--:--");
-        int bestStreak = statsPrefs.getInt(prefix + level + "_bestStreak", 0);
-        int perfectWins = statsPrefs.getInt(prefix + level + "_perfectWins", 0);
+        final String finalUsername = username;
+        new Thread(() -> {
+            DataBase db = DataBase.getInstance(this);
+            UserStatsEntity stats = db.userStatsDao().getStats(finalUsername, level);
 
-        profile_tvGamePlayed.setText(getString(R.string.stats_played, played));
-        profile_tvGameWins.setText(getString(R.string.stats_wins, wins));
-        profile_tvGameLosses.setText(getString(R.string.stats_losses, losses));
-        profile_tvGameBestTime.setText(getString(R.string.stats_best_time, bestTime));
-        profile_tvGameBestWinsStreak.setText(getString(R.string.stats_streak, bestStreak));
-        profile_tvGamePerfectWins.setText(getString(R.string.stats_perfect, perfectWins));
+            runOnUiThread(() -> {
+                int played = 0, wins = 0, losses = 0, bestStreak = 0, perfectWins = 0;
+                String bestTime = "--:--";
+
+                if (stats != null) {
+                    played = stats.getPlayed();
+                    wins = stats.getWins();
+                    losses = stats.getLosses();
+                    bestTime = stats.getBestTime();
+                    bestStreak = stats.getBestStreak();
+                    perfectWins = stats.getPerfectWins();
+                }
+
+                profile_tvGamePlayed.setText(getString(R.string.stats_played, played));
+                profile_tvGameWins.setText(getString(R.string.stats_wins, wins));
+                profile_tvGameLosses.setText(getString(R.string.stats_losses, losses));
+                profile_tvGameBestTime.setText(getString(R.string.stats_best_time, bestTime));
+                profile_tvGameBestWinsStreak.setText(getString(R.string.stats_streak, bestStreak));
+                profile_tvGamePerfectWins.setText(getString(R.string.stats_perfect, perfectWins));
+            });
+        }).start();
     }
 
     @Override

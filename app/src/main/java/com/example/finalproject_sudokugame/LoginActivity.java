@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         login_tvLogin = findViewById(R.id.login_tvLogin);
         login_toolbar = findViewById(R.id.login_toolbar);
 
+        setSupportActionBar(login_toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }

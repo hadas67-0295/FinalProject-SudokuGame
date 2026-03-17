@@ -14,10 +14,12 @@ import android.Manifest;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +37,7 @@ public class SettingsActivity extends AppCompatActivity {
     private Toolbar settings_toolbar;
     private TextView settings_tvAccount, settings_tvMusic, settings_tvNotification, settings_tvVibration;
     private Button settings_btnAccount, settings_btnMusic;
-    private Switch settings_switchNotifications, settings_switchVibration;
+    private MaterialSwitch settings_switchNotifications, settings_switchVibration;
 
     private static final String PREFS_NAME = "sudoku_settings";
 
@@ -145,9 +147,16 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
     }
-        @Override
-        public boolean onOptionsItemSelected (MenuItem item){
-            int id = item.getItemId();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item){
+        int id = item.getItemId();
 
             if (id == R.id.menu_home) {
                 Intent intent = new Intent(SettingsActivity.this, HomeActivity.class);

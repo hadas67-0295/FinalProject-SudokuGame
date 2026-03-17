@@ -5,63 +5,73 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient"
     tools:context=".SplashActivity">
 
-    <ImageView
-        android:id="@+id/splash_imageBoard"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Sudoku premium icon"
-        android:padding="8dp"
-        android:src="@drawable/sudoku_board"
-        app:layout_constraintBottom_toTopOf="@+id/splash_tvGameTitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
+        android:orientation="vertical"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/splash_imageBoard"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:contentDescription="Sudoku premium icon"
+            android:src="@drawable/sudoku_board"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/splash_tvGameTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sudoku Classic"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@color/on_primary"
+            android:letterSpacing="0.06"
+            android:layout_marginTop="24dp"/>
+
+        <View
+            android:id="@+id/splash_divider"
+            android:layout_width="60dp"
+            android:layout_height="3dp"
+            android:background="@color/accent"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/splash_tvMotivationSentence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:gravity="center"
+            android:text="Challenge your brain — Solve the board!"
+            android:textSize="18sp"
+            android:textColor="@color/on_primary"
+            android:alpha="0.85"
+            android:letterSpacing="0.02" />
+
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/splash_tvGameTitle"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sudoku Classic"
-        android:textSize="36sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_dark"
-        android:gravity="center"
-        android:letterSpacing="0.06"
-        app:layout_constraintTop_toBottomOf="@id/splash_imageBoard"
+        android:text="Premium Edition"
+        android:textColor="@color/on_primary"
+        android:alpha="0.6"
+        android:textSize="12sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/splash_divider"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginBottom="32dp" />
 
-    <View
-        android:id="@+id/splash_divider"
-        android:layout_width="60dp"
-        android:layout_height="3dp"
-        android:background="@color/accent"
-        app:layout_constraintTop_toBottomOf="@id/splash_tvGameTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/splash_tvMotivationSentence"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:id="@+id/splash_tvMotivationSentence"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:gravity="center"
-        android:text="Challenge your brain — Solve the board!"
-        android:textSize="17sp"
-        android:textColor="@color/text_secondary"
-        android:letterSpacing="0.02"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/splash_divider"
-        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

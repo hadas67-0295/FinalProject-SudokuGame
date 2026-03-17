@@ -65,29 +65,30 @@
     <Button
         android:id="@+id/game_btnHint"
         style="@style/Widget.Material3.Button.TonalButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="300dp"
-        android:layout_marginBottom="36dp"
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
         android:text="💡 Hint"
         android:textSize="14sp"
         app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@id/game_btnReturnHome"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/numbers_container"
+        app:layout_constraintEnd_toStartOf="@+id/game_btnReturnHome"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/game_btnReturnHome"
         style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="100dp"
+        android:layout_width="140dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="292dp"
-        android:layout_marginBottom="124dp"
+        android:layout_marginBottom="16dp"
         android:text="← Back"
         android:textColor="@color/primary"
         android:textSize="14sp"
         app:cornerRadius="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/numbers_container"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/game_btnHint"
         app:strokeColor="@color/primary_light" />
 
     <LinearLayout

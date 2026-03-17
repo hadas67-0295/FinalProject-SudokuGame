@@ -63,6 +63,11 @@ public class DifficultyActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isStartingGame = false;
+    }
 
     private void startGameWithDifficulty(String difficulty) {
         if (isStartingGame) return;

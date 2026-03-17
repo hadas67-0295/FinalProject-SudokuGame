@@ -18,16 +18,6 @@ public class GameManager {
         loadBoardFromString(boardState);
     }
 
-    public GameManager(String currentBoardStr, String originalBoardStr, String solutionBoardStr) {
-        board = new int[SIZE][SIZE];
-        originalBoard = new int[SIZE][SIZE];
-        solution = new int[SIZE][SIZE];
-        selectedRow = -1;
-        selectedCol = -1;
-
-        loadTripleBoards(currentBoardStr, originalBoardStr, solutionBoardStr);
-    }
-
     public GameManager(int[][] board, int[][] solution) {
         this.board = board;
         this.solution = solution;
@@ -135,6 +125,10 @@ public class GameManager {
         return getBoardString(solution);
     }
 
+    public String getBoardStateAsString() {
+        return getBoardString(board);
+    }
+
     private String getBoardString(int[][] targetBoard) {
         if (targetBoard == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -166,20 +160,24 @@ public class GameManager {
      return true if the move is valid, false otherwise
      */
     public boolean isValidMove(int row, int col, int value){
+        return getInvalidMoveReason(row, col, value) == null;
+    }
+
+    public String getInvalidMoveReason(int row, int col, int value) {
         for (int c = 0; c < 9; c++) {
-            if (board[row][c] == value) return false;
+            if (board[row][c] == value) return "Duplicate in row";
         }
         for (int r = 0; r < 9; r++) {
-            if (board[r][col] == value) return false;
+            if (board[r][col] == value) return "Duplicate in column";
         }
         int startRow = (row / 3) * 3;
         int startCol = (col / 3) * 3;
         for (int r = startRow; r < startRow + 3; r++) {
             for (int c = startCol; c < startCol + 3; c++) {
-                if (board[r][c] == value) return false;
+                if (board[r][c] == value) return "Duplicate in 3x3 block";
             }
         }
-        return true;
+        return null;
     }
 
     /**
